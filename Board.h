@@ -10,8 +10,8 @@
 #include <stdbool.h>
 #include "Piece.h"
 
-const int WIDTH=30;
-const int HEIGHT=35;
+const int WIDTH=10;
+const int HEIGHT=10;
 enum  {LEFT, RIGHT, UP, DOWN};
 
 
@@ -30,6 +30,7 @@ public:
 	void rotate2();
 	void absorb();
 	void draw_board(SDL_Renderer* renderer);
+	void gravity_piece(SDL_Renderer* renderer);
 };
 
 

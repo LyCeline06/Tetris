@@ -9,8 +9,8 @@
 
 Board::Board() : curPiece()
 {
-	for(int i = 0; i < WIDTH; i++){
-		for(int j = 0; j < HEIGHT; j++)
+	for(int i = 0; i < HEIGHT; i++){
+		for(int j = 0; j < WIDTH; j++)
 			board[i][j] = black;
 		}
 }
@@ -25,21 +25,34 @@ void Board::setcurPiece(Piece p){
 }
 
 void Board::gravity(int i){
-    for (int k=0;k<i;k++)
-        for (int j=0;j<HEIGHT;j++)
-             board[i+1][j]=board[i][j];
-
-    for (int j=0;j<HEIGHT;j++)
-        board[0][j]=black;
+	if (i >= 0)
+	{
+		for (int k=i;k>=0;k--)
+	        for (int j=0;j<WIDTH;j++)
+			{
+				board[k][j].r=board[k-1][j].r;
+				board[k][j].g=board[k-1][j].g;
+				board[k][j].b=board[k-1][j].b;
+			}
+	    for (int j=0;j<WIDTH;j++)
+	    {
+			board[0][j].r=black.r;
+	        board[0][j].g=black.g;
+	        board[0][j].b=black.b;
+		}
+	}
+	return;
 }
 
 int Board::line(){
-    bool res=true;
-
-    for (int i=0;i<WIDTH;i++){
-        for(int j=0;j<HEIGHT;j++)
-            if (board[i][j].g==0)
+    for (int i=0;i<HEIGHT;i++)
+	{
+		bool res=true;
+        for(int j=0;j<WIDTH;j++)
+        {
+			if (board[i][j].g==0)
                 res=false;
+		}
         if (res)
             return i;
     }
@@ -53,8 +66,21 @@ void Board::update(int move,SDL_Renderer* renderer)
 	int y = curPiece.getY();
 	Shape s = curPiece.getShape();
 
-	if (move == LEFT && x-1 >=0)
-		curPiece.setX(x - 1);
+	if (move == LEFT){
+		bool b = true;
+		for (int i = 0 ; i < s.size ; i++)
+			for (int j = 0 ; j < s.size ; j++)
+				if (s.matrix[i][j])
+				{
+					if (x+j-1 < 0 )
+						b = false;
+					else if (board[i+y][j+x-1].g!=0)
+						b = false;
+				}
+		if (b)
+			curPiece.setX(x - 1);
+	}
+
 
     if (move == RIGHT){
 		bool b = true;
@@ -62,7 +88,6 @@ void Board::update(int move,SDL_Renderer* renderer)
 			for (int j = 0 ; j < s.size ; j++)
 				if (s.matrix[i][j])
 				{
-					printf("%i\n", x+j+1);
 					if (x+j+1 == WIDTH )
 						b = false;
 					else if (board[i+y][j+x+1].g!=0)
@@ -78,7 +103,6 @@ void Board::update(int move,SDL_Renderer* renderer)
 			for (int j = 0 ; j < s.size ; j++)
 				if (s.matrix[i][j])
 				{
-					printf("%i\n", i+y+1);
 					if (i+y+1 == HEIGHT)
 						b = false;
 					else if (board[i+y+1][j+x].g!=0)
@@ -90,8 +114,9 @@ void Board::update(int move,SDL_Renderer* renderer)
 
     if (move == UP)
 		rotate2();
+
 	absorb();
-	draw_board(renderer);
+	gravity(line());
 }
 
 bool Board::fit(Piece p){
@@ -122,8 +147,8 @@ void Board::rotate2(){
 
 void Board::draw_board(SDL_Renderer* renderer){
 	SDL_Rect rect;
-	rect.w=tile_size*10;
-	rect.h=tile_size*10;
+	rect.w=tile_size;
+	rect.h=tile_size;
 
 	for (int x=0;x<WIDTH;x++)
 		for (int y=0;y<HEIGHT;y++){
@@ -150,13 +175,26 @@ void Board::absorb(){
                 else
                     b=true;
             }
-    if (b){
+    if (b)
+	{
         for (int i=0;i<s.size;i++)
-            for (int j=0;j<s.size;j++){
-                board[i+y][j+x].r=s.color.r;
-				board[i+y][j+x].g=s.color.g;
-				board[i+y][j+x].b=s.color.b;}
+            for (int j=0;j<s.size;j++)
+				if (s.matrix[i][j])
+				{
+	                board[i+y][j+x].r=s.color.r;
+					board[i+y][j+x].g=s.color.g;
+					board[i+y][j+x].b=s.color.b;
+				}
         Piece p;
         curPiece=p;
-    }
+
+		if (!fit(p)){     					//game over
+			std::cout << "lose" << std::endl;
+	    }
+	}
+}
+
+void Board::gravity_piece(SDL_Renderer* renderer)
+{
+	update(DOWN,renderer);
 }

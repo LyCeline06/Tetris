@@ -14,43 +14,29 @@ bool running;
 
 SDL_Renderer* renderer;
 SDL_Window* window;
+SDL_Texture *img = NULL;
 
 int frameCount, timerFPS, lastFrame, fps;
 
-Piece p;
 
 
-void input(Board *board) {
-    SDL_Event e;
+void input(Board *board, const Uint8* keys)
+{
+	//if (keys[SDL_SCANCODE_RETURN])
+	//	std::cout<< "<RETURN> is pressed."<< std::endl;
 
-    while(SDL_PollEvent(&e)) {
-        if(e.type == SDL_QUIT) running=false;
-        switch( e.type ){
-            case SDL_KEYUP: //DOWN
-			printf("up\n");
-                switch(e.key.keysym.sym) {
-                    case SDLK_LEFT:
-						printf("left\n");
-                        board->update(LEFT,renderer);
-                        break;
-                    case SDLK_RIGHT:
-                        board->update(RIGHT,renderer);
-						printf("right\n");
-                        break;
-                    case SDLK_UP:
-                        board->update(UP,renderer);
-						printf("up\n");
-                        break;
-                    case SDLK_DOWN:
-                        board->update(DOWN,renderer);
-						printf("down\n");
-                        break;
-                    case SDLK_ESCAPE:
-                        running=false;
-                        break;
-                }
-        }
-    }
+
+	if (keys[SDL_SCANCODE_UP])
+		board->update(UP,renderer);
+
+	if (keys[SDL_SCANCODE_DOWN])
+		board->update(DOWN,renderer);
+
+	if (keys[SDL_SCANCODE_LEFT])
+        board->update(LEFT,renderer);
+
+	if (keys[SDL_SCANCODE_RIGHT] )
+    	board->update(RIGHT,renderer);
 }
 
 void render() {
@@ -73,24 +59,50 @@ int main(int argc, char **argv) {
 	SDL_SetWindowTitle(window, "Tetris");
 
 	Board *board = new Board();
-
     static int lastTime=0;
 	running=1;
+	time_t timer;
+	time(&timer);
+	const Uint8* state = SDL_GetKeyboardState(NULL);
+
     while(running) {
+		SDL_Event event;
+		while (running && SDL_PollEvent(&event)) //avoir attennte non bloquante
+		{
+			switch (event.type)
+			{
+			case SDL_QUIT:
+				running = 0;
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				printf("mouse click %d\n", event.button.button);
+				break;
+			default: break;
+			}
+		}
+
+		if (time(nullptr)-timer > 0.5)	//gravity of current piece
+		{
+			board->gravity_piece(renderer);
+			time(&timer);
+		}
+
         lastFrame=SDL_GetTicks();
-        if(lastFrame>=(lastTime+1000)) {
+        if(lastFrame-lastTime >= 50)	//min speed to move pieces
+		{
             lastTime=lastFrame;
             fps=frameCount;
             frameCount=0;
+			input(board, state);
+
         }
-		input(board);
-		render();
+		render();						//display piece and board
+		board->draw_board(renderer);
 		board->getcurPiece().draw_piece(renderer);
 		SDL_RenderPresent(renderer);
-
 	}
 
-
+	//end game
 	SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
