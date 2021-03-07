@@ -1,11 +1,11 @@
 #include "../include/Game.h"
 
 #define BACKGROUND "utils/tetris.jpg"
-#define MUSIC "utils/tetris.wav"
+#define MUSIC "utils/acapella.wav"
 #define FONT "utils/police_style.ttf"
 
 //************* AUDIO RELATED **************************************
-//*****************************************************************
+
 Uint8 *audio_pos;  // global pointer to the audio buffer to be played
 Uint32 audio_len;  // remaining length of the sample we have to play
 
@@ -47,11 +47,8 @@ void Game::entrymusic() {
 
 	SDL_PauseAudio(0);
 }
-//*****************************************************************
-//*****************************************************************
 
 //************* CONSTRUCTOR/DESTRUCTOR ****************************
-//*****************************************************************
 
 Game::Game() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
