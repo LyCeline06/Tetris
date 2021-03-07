@@ -8,9 +8,16 @@
 #include <iostream>
 
 int counter_butt = 0;
+
+int notempty(SDL_Color color){
+	if (color.g != 25) return 1;
+	return 0;
+}
+// black board
 Board::Board() : curPiece() {
 	for (int i = 0; i < HEIGHT; i++) {
-		for (int j = 0; j < WIDTH; j++) board[i][j] = black;
+		for (int j = 0; j < WIDTH; j++) 
+		board[i][j] = grey;
 	}
 }
 
@@ -22,26 +29,23 @@ void Board::gravity(int i) {
 	if (i >= 0) {
 		for (int k = i; k >= 0; k--)
 			for (int j = 0; j < WIDTH; j++) {
-				board[k][j].r = board[k - 1][j].r;
-				board[k][j].g = board[k - 1][j].g;
-				board[k][j].b = board[k - 1][j].b;
+				board[k][j] = board[k - 1][j];
 			}
 		for (int j = 0; j < WIDTH; j++) {
-			board[0][j].r = black.r;
-			board[0][j].g = black.g;
-			board[0][j].b = black.b;
+			board[0][j] = grey;
 		}
 	}
 	return;
 }
 
+// looks for a completed line 
 int Board::line() {
 	for (int i = 0; i < HEIGHT; i++) {
 		bool res = true;
 		for (int j = 0; j < WIDTH; j++) {
-			if (board[i][j].g == 0) res = false;
+			if (!notempty(board[i][j])) res = false;
 		}
-		if (res) return i;
+		if (res == true) return i;
 	}
 
 	return -1;
@@ -60,7 +64,7 @@ void Board::update(int move,
 				if (s.matrix[i][j]) {
 					if (x + j - 1 < 0)
 						b = false;
-					else if (board[i + y][j + x - 1].g != 0)
+					else if (notempty(board[i + y][j + x - 1]))
 						b = false;
 				}
 		if (b) curPiece.setX(x - 1);
@@ -73,7 +77,7 @@ void Board::update(int move,
 				if (s.matrix[i][j]) {
 					if (x + j + 1 == WIDTH)
 						b = false;
-					else if (board[i + y][j + x + 1].g != 0)
+					else if (notempty(board[i + y][j + x + 1]))
 						b = false;
 				}
 		if (b) curPiece.setX(x + 1);
@@ -86,7 +90,7 @@ void Board::update(int move,
 				if (s.matrix[i][j]) {
 					if (i + y + 1 == HEIGHT)
 						b = false;
-					else if (board[i + y + 1][j + x].g != 0)
+					else if (notempty(board[i + y + 1][j + x]))
 						b = false;
 				}
 		if (b) curPiece.setY(y + 1);
@@ -113,7 +117,7 @@ bool Board::fit(Piece p) {
 			if (s.matrix[i][j]) {
 				if (i + y < HEIGHT && i + y >= 0 && x + j < WIDTH &&
 					x + j >= 0) {
-					if (board[i + y][j + x].g != 0) res = false;
+					if (notempty(board[i + y][j + x])) res = false;
 				} else
 					res = false;
 			}
@@ -132,18 +136,20 @@ void Board::rotate2() {
 
 void Board::draw_board(SDL_Renderer* renderer) {
 	SDL_Rect rect;
-	rect.w = tile_size;
-	rect.h = tile_size;
+	int border = 2;
+	rect.w = tile_size - border;
+	rect.h = tile_size - border;
 
 	for (int x = 0; x < WIDTH; x++)
 		for (int y = 0; y < HEIGHT; y++) {
 			SDL_SetRenderDrawColor(renderer, board[y][x].r, board[y][x].g,
 								   board[y][x].b, 255);
-			rect.x = x * tile_size;
-			rect.y = y * tile_size;
+			rect.x = x * tile_size + border;
+			rect.y = y * tile_size + border;
 			SDL_RenderFillRect(renderer, &rect);
 		}
 }
+// absorb and replace in collision
 void Board::absorb() {
 	int x = curPiece.getX();
 	int y = curPiece.getY();
@@ -153,7 +159,7 @@ void Board::absorb() {
 		for (int j = 0; j < s.size; j++)
 			if (s.matrix[i][j]) {
 				if (i + y + 1 < HEIGHT) {
-					if (board[i + y + 1][j + x].g != 0) b = true;
+					if (notempty(board[i + y + 1][j + x])) b = true;
 				} else
 					b = true;
 			}
@@ -161,9 +167,7 @@ void Board::absorb() {
 		for (int i = 0; i < s.size; i++)
 			for (int j = 0; j < s.size; j++)
 				if (s.matrix[i][j]) {
-					board[i + y][j + x].r = s.color.r;
-					board[i + y][j + x].g = s.color.g;
-					board[i + y][j + x].b = s.color.b;
+					board[i + y][j + x] = s.color;
 				}
 		Piece p;
 		curPiece = p;

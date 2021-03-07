@@ -10,8 +10,8 @@
 #include <stdbool.h>
 #include "Piece.h"
 
-const int WIDTH = 20;
-const int HEIGHT = 25;
+const int WIDTH = 10;
+const int HEIGHT = 15;
 enum  {LEFT, RIGHT, UP, DOWN};
 
 
