@@ -33,7 +33,8 @@ struct Sound {
 	SDL_AudioSpec wav_spec;
 };
 
-class Stat;
+const vector<float> speed = {0.48, 0.43, 0.38, 0.33, 0.28, 0.18, 0.13, 0.08, 0.06};
+enum {MODE_SOLO, MODE_IA};
 
 class Game {
    public:
@@ -49,12 +50,12 @@ class Game {
 	~Game();
 
 	void start();
+	void start_solo();
+	void start_ia();
 	void render();
 	bool input(Board* board, const Uint8* keys);
-
+	void change_level();
    private:
-	friend class Stat;
-
 	SDL_Surface* surface;
 	SDL_Texture* texture;
 	TTF_Font* font;
@@ -62,6 +63,9 @@ class Game {
 	Board *board;
 	Sound s;
 	int correct_line;
+	float gravity_speed;
+	int level;
+	bool changed_lev;
 
 	SDL_Texture* background;
 	SDL_Window* window;
@@ -74,7 +78,7 @@ class Game {
 	int frameCount, timerFPS, lastFrame, fps;
 	bool running;
 	bool end_b = false;
-
+	int gamemode;
 
 };
 

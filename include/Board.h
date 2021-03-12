@@ -10,8 +10,8 @@
 #include <stdbool.h>
 #include "Piece.h"
 
-const int WIDTH = 15; //game
-const int HEIGHT = 15; //game and window
+const int WIDTH = 10; //game
+const int HEIGHT = 20; //game and window
 const int WIDTH_W = 40; //window
 
 enum  {LEFT, RIGHT, UP, DOWN};
@@ -31,7 +31,7 @@ public:
 	bool fit(Piece p);
 	void rotate2();
 	bool absorb();
-	void draw_board(SDL_Renderer* renderer);
+	void draw_board(SDL_Renderer* renderer, int border);
 	void gravity_piece(SDL_Renderer* renderer, int*);
 };
 

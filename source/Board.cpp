@@ -100,8 +100,6 @@ bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
 		counter_butt++;
 		printf("up button %d\n", counter_butt);
 		rotate2();
-		SDL_Delay(80);
-
 	}
 
     bool b2 = absorb();
@@ -140,9 +138,8 @@ void Board::rotate2() {
 	if (b) curPiece.setShape(s2);
 }
 
-void Board::draw_board(SDL_Renderer* renderer) {
+void Board::draw_board(SDL_Renderer* renderer, int border) {
 	SDL_Rect rect;
-	int border = 2;
 	rect.w = tile_size - border;
 	rect.h = tile_size - border;
 
@@ -170,6 +167,7 @@ bool Board::absorb() {
 					b = true;
 			}
 	if (b) {
+		SDL_Delay(50);
 		for (int i = 0; i < s.size; i++)
 			for (int j = 0; j < s.size; j++)
 				if (s.matrix[i][j]) {
@@ -178,9 +176,7 @@ bool Board::absorb() {
 		Piece p;
 		curPiece = p;
 
-		if (!fit(p)) {	// game over
-            return false;
-		}
+		if (!fit(p)) return false;
 	}
 	return true;
 }

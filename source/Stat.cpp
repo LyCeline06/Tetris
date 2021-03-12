@@ -7,14 +7,14 @@ Stat::Stat(char *msg1, int nb, int score_base, int priority, SDL_Renderer *rende
 
     /* Inint TTF. */
     TTF_Init();
-    font = TTF_OpenFont("utils/Retro.ttf", 40);
+    font = TTF_OpenFont("utils/Retro.ttf", 30);
     if (font == NULL) {
         fprintf(stderr, "error: font not found\n");
         exit(EXIT_FAILURE);
     }
     get_text_and_rect(renderer, (WIDTH+2)*tile_size, (2*tile_size)+nb, msg1, font, & texture1, & rect1);
     get_text_and_rect(renderer, (WIDTH+2)*tile_size, 4 + rect1.y + rect1.h, msg, font, & texture2, & rect2);
-
+	//width of text : 9 tile_size
 
 }
 

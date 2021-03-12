@@ -51,7 +51,7 @@ void Game::entrymusic() {
 
 //************* CONSTRUCTOR/DESTRUCTOR ****************************
 
-Game::Game() : correct_line(0)
+Game::Game() : correct_line(0), gravity_speed(0.48), level(0)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 		cout << "Failed at SDL_Init()" << endl;
@@ -139,6 +139,14 @@ void Game::menu() {
 						case SDLK_ESCAPE:
 							end_b = true;
 							break;
+						case SDLK_1:
+							start = true;
+							gamemode = MODE_SOLO;
+							break;
+						case SDLK_2:
+							start = true;
+							gamemode = MODE_IA;
+							break;
 						default:
 							break;
 					}
@@ -204,7 +212,9 @@ bool Game::input(Board *board, const Uint8 *keys) {
 	//	std::cout<< "<RETURN> is pressed."<< std::endl;
     bool b = true;
 
-	if (keys[SDL_SCANCODE_UP]) board->update(UP, renderer, &correct_line);
+	if (keys[SDL_SCANCODE_UP]) {
+		board->update(UP, renderer, &correct_line);
+	}
 
 	if (keys[SDL_SCANCODE_DOWN]) board->update(DOWN, renderer, &correct_line);
 
@@ -233,9 +243,9 @@ void Game::render() {
 	}
 }
 
-void Game::start() {
-	srand(time(NULL));
 
+void Game::start_solo() {
+	SDL_SetWindowSize(window, WIDTH*2*tile_size, HEIGHT*tile_size);
     bool b2 = true;
 	static int lastTime = 0;
 	running = 1;
@@ -243,6 +253,7 @@ void Game::start() {
 	time(&timer);
 
 	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
+	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
 	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
 
 	// Etats kyb
@@ -267,7 +278,7 @@ void Game::start() {
 			}
 		}
 
-		if (time(nullptr) - timer > 0.5)  // gravity of current piece
+		if (time(nullptr) - timer > gravity_speed)  // gravity of current piece
 		{
 			board->gravity_piece(renderer, &correct_line);
 			time(&timer);
@@ -285,10 +296,11 @@ void Game::start() {
 
         if (b2) {
 			render();  // display piece and board
-            board -> draw_board(renderer);
+            board -> draw_board(renderer, 2);
             board -> getcurPiece().draw_piece(renderer);
             score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
+			level.render_stat(&correct_line);
             SDL_RenderPresent(renderer);
 
         } else {
@@ -300,10 +312,94 @@ void Game::start() {
             SDL_RenderCopy(renderer, gameover, NULL, &rec);
 			score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
+			level.render_stat(&correct_line);
             SDL_RenderPresent(renderer);
 
         }
 	}
+}
+
+void Game::start_ia(){
+	SDL_SetWindowSize(window, WIDTH*4*tile_size, HEIGHT*tile_size);
+
+    bool b2 = true;
+	static int lastTime = 0;
+	running = 1;
+	time_t timer;
+	time(&timer);
+
+	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
+	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
+	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
+
+	// Etats kyb
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
+	while (running && !end_b) {
+		SDL_Event event;
+		while (running &&
+			   SDL_PollEvent(&event))  // avoir attennte non bloquante
+		{
+			switch (event.type) {
+				case SDL_QUIT:
+					running = 0;
+					printf("game quit\n");
+					exit(1);
+					break;
+				case SDL_MOUSEBUTTONDOWN:
+					printf("mouse click %d\n", event.button.button);
+					break;
+				default:
+					// printf("non identified type of event\n");
+					break;
+			}
+		}
+
+		if (time(nullptr) - timer > gravity_speed)  // gravity of current piece
+		{
+			board->gravity_piece(renderer, &correct_line);
+			time(&timer);
+		}
+		lastFrame = SDL_GetTicks();
+		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
+		{
+			lastTime = lastFrame;
+			fps = frameCount;
+			frameCount = 0;
+            b2 = input(board, state);
+		}
+
+		render();  // display piece and board
+
+        if (b2) {
+			render();  // display piece and board
+            board -> draw_board(renderer, WIDTH*2*tile_size);
+            board -> getcurPiece().draw_piece(renderer);
+            score.render_stat(&correct_line);
+			lines.render_stat(&correct_line);
+			level.render_stat(&correct_line);
+            SDL_RenderPresent(renderer);
+
+        } else {
+			SDL_Rect rec;
+			rec.w=WIDTH*tile_size;
+			rec.h=HEIGHT*tile_size;
+			rec.x=0;
+			rec.y=0;
+            SDL_RenderCopy(renderer, gameover, NULL, &rec);
+			score.render_stat(&correct_line);
+			lines.render_stat(&correct_line);
+			level.render_stat(&correct_line);
+            SDL_RenderPresent(renderer);
+
+        }
+	}
+}
+
+void Game::start() {
+	srand(time(NULL));
+
+	if (gamemode == MODE_SOLO) start_solo();
+	if (gamemode == MODE_IA) start_ia();
 
 	// end game
 	SDL_DestroyRenderer(renderer);
