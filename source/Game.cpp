@@ -4,6 +4,7 @@
 #define MUSIC "utils/acapella.wav"
 #define FONT "utils/police_style.ttf"
 #define GAMEOVER "utils/gameover.bmp"
+#define WIN "utils/win.jpg"
 
 //************* AUDIO RELATED **************************************
 
@@ -100,6 +101,13 @@ Game::Game() : correct_line(0), gravity_speed(0.48), level(0)
 			 << SDL_GetError() << endl;
 
 	gameover = SDL_CreateTextureFromSurface(renderer, image);
+
+	// background image
+	image_win = IMG_Load(WIN);
+	if (!surface) cout << "Could not load image \n" << SDL_GetError() << endl;
+
+	win = SDL_CreateTextureFromSurface(renderer, image_win);
+
 }
 
 Game::~Game() {
@@ -109,6 +117,7 @@ Game::~Game() {
 	SDL_FreeSurface(image);
 	SDL_DestroyTexture(texture);
 	SDL_DestroyTexture(gameover);
+	SDL_DestroyTexture(win);
 	SDL_DestroyTexture(background);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
@@ -355,6 +364,7 @@ void Game::start_ia(){
 	SDL_SetWindowSize(window, WIDTH*4*tile_size, HEIGHT*tile_size);
 
     bool b2 = true;
+	bool bai2=true;
 	static int lastTime = 0;
 	running = 1;
 	time_t timer;
@@ -403,12 +413,13 @@ void Game::start_ia(){
 			fps = frameCount;
 			frameCount = 0;
             b2 = input(board, state);
+		    bai2 = input_ai(board_ai, state);
 			
 		}
 
 		render();  // display piece and board
 
-        if (b2) {
+        if (b2 && bai2) {
 			render();  // display piece and board
             //board -> draw_board(renderer, WIDTH*2*tile_size);
 			board -> draw_board(renderer, 2);
@@ -425,11 +436,31 @@ void Game::start_ia(){
 
         } else {
 			SDL_Rect rec;
+			if(!b2){
 			rec.w=WIDTH*tile_size;
 			rec.h=HEIGHT*tile_size;
 			rec.x=0;
 			rec.y=0;
             SDL_RenderCopy(renderer, gameover, NULL, &rec);
+			rec.w=WIDTH*tile_size;
+			rec.h=HEIGHT*tile_size;
+			rec.x=2*WIDTH*tile_size;
+			rec.y=0;
+            SDL_RenderCopy(renderer, win, NULL, &rec);
+			}
+			else{
+			rec.w=WIDTH*tile_size;
+			rec.h=HEIGHT*tile_size;
+			rec.x=0;
+			rec.y=0;
+            SDL_RenderCopy(renderer, win, NULL, &rec);
+			rec.w=WIDTH*tile_size;
+			rec.h=HEIGHT*tile_size;
+			rec.x=2*WIDTH*tile_size;
+			rec.y=0;
+            SDL_RenderCopy(renderer, gameover, NULL, &rec);				
+			}
+
             score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
 			level.render_stat(&correct_line);
@@ -444,7 +475,8 @@ void Game::start_ia(){
 
 void Game::start() {
 	srand(time(NULL));
-
+	correct_line=0;
+	correct_line_ai= 0;
 	if (gamemode == MODE_SOLO) start_solo();
 	if (gamemode == MODE_IA) start_ia();
 

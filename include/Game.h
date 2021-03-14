@@ -77,7 +77,9 @@ class Game {
 	int width;
 	int height;
 	SDL_Texture* gameover;
+	SDL_Texture* win;
 	SDL_Surface *image;
+	SDL_Surface *image_win;
 
 	int frameCount, timerFPS, lastFrame, fps;
 	bool running;
