@@ -20,7 +20,6 @@ Board::Board() : curPiece() {
 		board[i][j] = grey;
 	}
 }
-
 Piece Board::getcurPiece() { return curPiece; }
 
 void Board::setcurPiece(Piece p) { curPiece = p; }

@@ -17,6 +17,7 @@
 
 #include "Stat.h"
 #include "Board.h"
+#include "Board_AI.h"
 #include "Piece.h"
 #include "Shape.h"
 using namespace std;
@@ -54,6 +55,7 @@ class Game {
 	void start_ia();
 	void render();
 	bool input(Board* board, const Uint8* keys);
+	bool input_ai(Board_ai* board, const Uint8* keys);	
 	void change_level();
    private:
 	SDL_Surface* surface;
@@ -61,8 +63,10 @@ class Game {
 	TTF_Font* font;
 
 	Board *board;
+	Board_ai *board_ai;
 	Sound s;
 	int correct_line;
+	int correct_line_ai;
 	float gravity_speed;
 	int level;
 	bool changed_lev;

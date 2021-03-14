@@ -22,7 +22,9 @@ class Board{
 
 public:
 	SDL_Color board[HEIGHT][WIDTH];
+
     Board();
+	
 	Piece getcurPiece() ;
 	void setcurPiece(Piece p);
 	bool update(int, SDL_Renderer* renderer, int*);

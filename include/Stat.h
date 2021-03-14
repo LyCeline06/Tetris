@@ -24,10 +24,11 @@ class Stat
 	int score_base;
 	int priority;
 	SDL_Renderer* renderer;
+	int ai; //if ai , ai=1
 
 	public :
 		Stat() = default;
-		Stat(char *msg1, int nb, int score_base, int priority, SDL_Renderer* renderer);
+		Stat(char *msg1, int nb, int score_base, int priority, SDL_Renderer* renderer,int ai=0);
 
 		void get_text_and_rect(SDL_Renderer * renderer, int x, int y, char * text,
 		TTF_Font * font, SDL_Texture ** texture, SDL_Rect * rect);

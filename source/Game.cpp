@@ -177,15 +177,24 @@ void Game::menu() {
 		SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
 
 		// PRESS
-		surface = TTF_RenderText_Solid(font, "PRESS TO PLAY", White);
+		surface = TTF_RenderText_Solid(font, "PRESS 1 TO PLAY SOLO", White);
 		texture = SDL_CreateTextureFromSurface(renderer, surface);
-		Message_rect.w = 400;
+		Message_rect.w = 500;
 		Message_rect.h = 75;
 		Message_rect.x = (w - Message_rect.w) * 0.5;
 		Message_rect.y = (h - Message_rect.h) * 0.5;
 		if (fmod(SDL_GetTicks(), 500) > 50) {
 			SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
 		}
+		surface = TTF_RenderText_Solid(font, "PRESS 2 TO PLAY VS AI", White);
+		texture = SDL_CreateTextureFromSurface(renderer, surface);
+		Message_rect.w = 500;
+		Message_rect.h = 75;
+		Message_rect.x = (w - Message_rect.w) * 0.5;
+		Message_rect.y = (h - Message_rect.h) * 0.7;
+		if (fmod(SDL_GetTicks(), 300) > 50) {
+			SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
+		}		
 
 		// CREATORS
 		surface = TTF_RenderText_Solid(font, "BY CELINE & YASSINE", White);
@@ -229,7 +238,28 @@ bool Game::input(Board *board, const Uint8 *keys) {
     }
     return b;
 }
+bool Game::input_ai(Board_ai *board, const Uint8 *keys) {
+	// if (keys[SDL_SCANCODE_RETURN])
+	//	std::cout<< "<RETURN> is pressed."<< std::endl;
+    bool b = true;
 
+	if (keys[SDL_SCANCODE_UP]) {
+		board->update_ai(UP_AI, renderer, &correct_line_ai);
+	}
+
+	if (keys[SDL_SCANCODE_DOWN]) board->update_ai(DOWN_AI, renderer, &correct_line_ai);
+
+	if (keys[SDL_SCANCODE_LEFT]) board->update_ai(LEFT_AI, renderer, &correct_line_ai);
+
+	if (keys[SDL_SCANCODE_RIGHT]) board->update_ai(RIGHT_AI, renderer, &correct_line_ai);
+
+    if (keys[SDL_SCANCODE_ESCAPE])
+        running = false;
+    else {
+        b = board -> absorb_ai();
+    }
+    return b;
+}
 void Game::render() {
 	// set background color
 	SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
@@ -320,6 +350,8 @@ void Game::start_solo() {
 }
 
 void Game::start_ia(){
+	
+	board_ai = new Board_ai();
 	SDL_SetWindowSize(window, WIDTH*4*tile_size, HEIGHT*tile_size);
 
     bool b2 = true;
@@ -332,6 +364,10 @@ void Game::start_ia(){
 	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
 	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
 
+	Stat score_AI((char*)"SCORE AI", 0, 1000, 0, renderer, 1);
+	Stat level_AI((char*)"LEVEL AI", 4*tile_size, 1, 0, renderer, 1);
+	Stat lines_AI((char*)"LINES AI", 8*tile_size, 1, 1, renderer, 1);
+	
 	// Etats kyb
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 	while (running && !end_b) {
@@ -357,6 +393,7 @@ void Game::start_ia(){
 		if (time(nullptr) - timer > gravity_speed)  // gravity of current piece
 		{
 			board->gravity_piece(renderer, &correct_line);
+			board_ai->gravity_piece_ai(renderer, &correct_line_ai);
 			time(&timer);
 		}
 		lastFrame = SDL_GetTicks();
@@ -366,17 +403,24 @@ void Game::start_ia(){
 			fps = frameCount;
 			frameCount = 0;
             b2 = input(board, state);
+			
 		}
 
 		render();  // display piece and board
 
         if (b2) {
 			render();  // display piece and board
-            board -> draw_board(renderer, WIDTH*2*tile_size);
-            board -> getcurPiece().draw_piece(renderer);
+            //board -> draw_board(renderer, WIDTH*2*tile_size);
+			board -> draw_board(renderer, 2);
+            board -> getcurPiece().draw_piece(renderer);			
+			board_ai -> draw_board_ai(renderer, 2);
+            board_ai -> getcurPiece_ai().draw_piece(renderer, WIDTH_AI*2);
             score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
 			level.render_stat(&correct_line);
+            score_AI.render_stat(&correct_line_ai);
+			lines_AI.render_stat(&correct_line_ai);
+			level_AI.render_stat(&correct_line_ai);			
             SDL_RenderPresent(renderer);
 
         } else {
@@ -386,9 +430,12 @@ void Game::start_ia(){
 			rec.x=0;
 			rec.y=0;
             SDL_RenderCopy(renderer, gameover, NULL, &rec);
-			score.render_stat(&correct_line);
+            score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
 			level.render_stat(&correct_line);
+            score_AI.render_stat(&correct_line_ai);
+			lines_AI.render_stat(&correct_line_ai);
+			level_AI.render_stat(&correct_line_ai);
             SDL_RenderPresent(renderer);
 
         }
