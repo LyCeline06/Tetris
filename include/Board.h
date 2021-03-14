@@ -4,7 +4,7 @@
 #include <cmath>
 
 #include <SDL.h>
-
+#include <array>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,15 +16,15 @@ const int WIDTH_W = 40; //window
 
 enum  {LEFT, RIGHT, UP, DOWN};
 
+typedef std::array<SDL_Color, WIDTH> row_type;
+typedef std::array<row_type, HEIGHT> array_type;
 
 class Board{
     Piece curPiece;
-
+	array_type board;
 public:
-	SDL_Color board[HEIGHT][WIDTH];
-
     Board();
-	
+	const array_type& get_Board() const {return board;}
 	Piece getcurPiece() ;
 	void setcurPiece(Piece p);
 	bool update(int, SDL_Renderer* renderer, int*);

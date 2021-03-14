@@ -17,9 +17,11 @@
 
 #include "Stat.h"
 #include "Board.h"
-#include "Board_AI.h"
 #include "Piece.h"
 #include "Shape.h"
+#include "Player1.h"
+#include "IA.h"
+
 using namespace std;
 
 #define DELAY 25
@@ -34,58 +36,48 @@ struct Sound {
 	SDL_AudioSpec wav_spec;
 };
 
-const vector<float> speed = {0.48, 0.43, 0.38, 0.33, 0.28, 0.18, 0.13, 0.08, 0.06};
 enum {MODE_SOLO, MODE_IA};
 
 class Game {
-   public:
-	/* @brief Game constructor
-	creates window , sound and background */
-	Game();
-	/* @brief Game menu
-	creates window , sound and background */
-	void menu();
-	/* @brief plays entry sound  */
-	void entrymusic();
-	/* @brief Game destructor */
-	~Game();
+    public:
+		/* @brief Game constructor
+		creates window , sound and background */
+		Game();
+		/* @brief Game menu
+		creates window , sound and background */
+		void menu();
+		/* @brief plays entry sound  */
+		void entrymusic();
+		/* @brief Game destructor */
+		~Game();
 
-	void start();
-	void start_solo();
-	void start_ia();
-	void render();
-	bool input(Board* board, const Uint8* keys);
-	bool input_ai(Board_ai* board, const Uint8* keys);	
-	void change_level();
-   private:
-	SDL_Surface* surface;
-	SDL_Texture* texture;
-	TTF_Font* font;
+		void start();
+		void start_solo();
+		void start_IA();
 
-	Board *board;
-	Board_ai *board_ai;
-	Sound s;
-	int correct_line;
-	int correct_line_ai;
-	float gravity_speed;
-	int level;
-	bool changed_lev;
 
-	SDL_Texture* background;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	int width;
-	int height;
-	SDL_Texture* gameover;
-	SDL_Texture* win;
-	SDL_Surface *image;
-	SDL_Surface *image_win;
 
-	int frameCount, timerFPS, lastFrame, fps;
-	bool running;
-	bool end_b = false;
-	int gamemode;
+    private:
+		SDL_Surface* surface;
+		SDL_Texture* texture;
+		TTF_Font* font;
 
+		Sound s;
+
+		SDL_Texture* background;
+		SDL_Window* window;
+		SDL_Renderer* renderer;
+		int width;
+		int height;
+		SDL_Texture* gameover;
+		SDL_Surface *image;
+		int frameCount, timerFPS, lastFrame, fps;
+		bool running;
+		bool end_b = false;
+
+		int gamemode;
+		Player1 human;
+		Ia machine;
 };
 
 #endif

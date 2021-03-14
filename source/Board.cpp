@@ -20,6 +20,7 @@ Board::Board() : curPiece() {
 		board[i][j] = grey;
 	}
 }
+
 Piece Board::getcurPiece() { return curPiece; }
 
 void Board::setcurPiece(Piece p) { curPiece = p; }
@@ -147,7 +148,7 @@ void Board::draw_board(SDL_Renderer* renderer, int border) {
 			SDL_SetRenderDrawColor(renderer, board[y][x].r, board[y][x].g,
 								   board[y][x].b, 255);
 			rect.x = x * tile_size + border;
-			rect.y = y * tile_size + border;
+			rect.y = y * tile_size;
 			SDL_RenderFillRect(renderer, &rect);
 		}
 }
@@ -175,7 +176,10 @@ bool Board::absorb() {
 		Piece p;
 		curPiece = p;
 
-		if (!fit(p)) return false;
+		if (!fit(p)) {	// game over
+			SDL_Delay(50);
+            return false;
+		}
 	}
 	return true;
 }
@@ -183,3 +187,8 @@ bool Board::absorb() {
 void Board::gravity_piece(SDL_Renderer * renderer, int * correct_line) {
     update(DOWN, renderer, correct_line);
 }
+/*
+vector<vector<SDL_Color>> Board::get_Board()
+{
+	return board;
+}*/

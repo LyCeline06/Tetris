@@ -24,7 +24,11 @@ class Piece {
 	void setShape(Shape sh);
 	Piece();
 	Piece(Shape s2, int x2, int y2);
-	void draw_piece(SDL_Renderer* renderer, int ai=0);
+	void draw_piece(SDL_Renderer* renderer);
+	int wid();
+	int hei();
+	int Real_x();
+
 };
 
 #endif

@@ -15,4 +15,6 @@ int main(void) {
 	Game game;
 	game.menu();
 	game.start();
+
+	return 0;
 }
