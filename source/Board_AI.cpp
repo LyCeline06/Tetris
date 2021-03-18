@@ -9,17 +9,16 @@
 
 int counter_butt_ai = 0;
 
-int notempty_ai(SDL_Color color){
+int notempty_ai(SDL_Color color) {
 	if (color.g != 25) return 1;
 	return 0;
 }
 // black board_ai
 Board_ai::Board_ai() : curPiece_ai() {
 	for (int i = 0; i < HEIGHT_AI; i++) {
-		for (int j = 0; j < WIDTH_AI; j++)
-		board_ai[i][j] = grey;
+		for (int j = 0; j < WIDTH_AI; j++) board_ai[i][j] = grey;
 	}
-}	
+}
 
 Piece Board_ai::getcurPiece_ai() { return curPiece_ai; }
 
@@ -51,7 +50,8 @@ int Board_ai::line_ai() {
 	return -1;
 }
 
-bool Board_ai::update_ai(int move, SDL_Renderer * renderer, int * correct_line_ai) {
+bool Board_ai::update_ai(int move, SDL_Renderer* renderer,
+						 int* correct_line_ai) {
 	int x = curPiece_ai.getX();
 	int y = curPiece_ai.getY();
 	Shape s = curPiece_ai.getShape();
@@ -102,13 +102,13 @@ bool Board_ai::update_ai(int move, SDL_Renderer * renderer, int * correct_line_a
 		rotate2_ai();
 	}
 
-    bool b2 = absorb_ai();
-    while (line_ai() != -1) {
+	bool b2 = absorb_ai();
+	while (line_ai() != -1) {
 		printf("oui\n");
-        gravity_ai(line_ai());
-        (* correct_line_ai) ++;
-    }
-    return b2;
+		gravity_ai(line_ai());
+		(*correct_line_ai)++;
+	}
+	return b2;
 }
 
 bool Board_ai::fit_ai(Piece p) {
@@ -147,7 +147,7 @@ void Board_ai::draw_board_ai(SDL_Renderer* renderer, int border) {
 		for (int y = 0; y < HEIGHT_AI; y++) {
 			SDL_SetRenderDrawColor(renderer, board_ai[y][x].r, board_ai[y][x].g,
 								   board_ai[y][x].b, 255);
-			rect.x = WIDTH_AI*2*tile_size + x * tile_size + border;
+			rect.x = WIDTH_AI * 2 * tile_size + x * tile_size + border;
 			rect.y = y * tile_size + border;
 			SDL_RenderFillRect(renderer, &rect);
 		}
@@ -181,6 +181,6 @@ bool Board_ai::absorb_ai() {
 	return true;
 }
 
-void Board_ai::gravity_piece_ai(SDL_Renderer * renderer, int * correct_line_ai) {
-    update_ai(DOWN_AI, renderer, correct_line_ai);
+void Board_ai::gravity_piece_ai(SDL_Renderer* renderer, int* correct_line_ai) {
+	update_ai(DOWN_AI, renderer, correct_line_ai);
 }

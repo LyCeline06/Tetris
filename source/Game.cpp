@@ -51,15 +51,13 @@ void Game::entrymusic() {
 
 //************* CONSTRUCTOR/DESTRUCTOR ****************************
 
-Game::Game()
-{
+Game::Game() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 		cout << "Failed at SDL_Init()" << endl;
 
 	window = SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_UNDEFINED,
 							  SDL_WINDOWPOS_UNDEFINED, WIDTH_W * tile_size,
-							  HEIGHT * tile_size,
-							  SDL_WINDOW_RESIZABLE);
+							  HEIGHT * tile_size, SDL_WINDOW_RESIZABLE);
 
 	if (!window) cout << "Could not create window" << SDL_GetError() << endl;
 
@@ -68,8 +66,6 @@ Game::Game()
 
 	if (!renderer)
 		cout << "Could not create renderer \n" << SDL_GetError() << endl;
-
-
 
 	SDL_GetRendererOutputSize(renderer, &width, &height);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
@@ -112,7 +108,6 @@ Game::~Game() {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-
 }
 
 //*****************************************************************
@@ -206,27 +201,18 @@ void Game::menu() {
 	}
 };
 
-
-
-
-
-void Game::start_solo()
-{
-	machine.play(renderer, &running, end_b, gameover, frameCount,
-		timerFPS, lastFrame, fps, window);
+void Game::start_solo() {
+	human.play(renderer, &running, end_b, gameover, frameCount, timerFPS,
+			   lastFrame, fps, window);
 }
 
-void Game::start_IA()
-{
-	machine.play(renderer, &running, end_b, gameover, frameCount,
-		timerFPS, lastFrame, fps, window);
+void Game::start_IA() {
+	machine.play(renderer, &running, end_b, gameover, frameCount, timerFPS,
+				 lastFrame, fps, window);
 
-	human.play(renderer, &running, end_b, gameover, frameCount,
-		timerFPS, lastFrame, fps, window);
-
-
+	// human.play(renderer, &running, end_b, gameover, frameCount,
+	//	timerFPS, lastFrame, fps, window, 1);
 }
-
 
 void Game::start() {
 	srand(time(NULL));

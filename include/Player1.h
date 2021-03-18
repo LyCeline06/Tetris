@@ -15,25 +15,24 @@
 #include <thread>
 #include <vector>
 
-#include "Stat.h"
 #include "Board.h"
+#include "Board_AI.h"
 #include "Piece.h"
-#include "Shape.h"
 #include "Player.h"
+#include "Shape.h"
+#include "Stat.h"
 
-class Player1 : protected Player
-{
-	public :
-		Player1();
+class Player1 : protected Player {
+   public:
+	Player1();
 
-		bool input(const Uint8 *keys, SDL_Renderer* renderer, bool *running);
+	bool input(const Uint8* keys, SDL_Renderer* renderer, bool* running);
 
-		void render(SDL_Renderer* renderer, int frameCount, int lastFrame);
+	void render(SDL_Renderer* renderer, int frameCount, int lastFrame);
 
-		void play(SDL_Renderer* renderer, bool running, bool end_b,
-			SDL_Texture* gameover, int frameCount, int timerFPS, int lastFrame,
-			int fps, SDL_Window* window);
-
+	void play(SDL_Renderer* renderer, bool running, bool end_b,
+			  SDL_Texture* gameover, int frameCount, int timerFPS,
+			  int lastFrame, int fps, SDL_Window* window);
 };
 
 #endif

@@ -9,15 +9,14 @@
 
 int counter_butt = 0;
 
-int notempty(SDL_Color color){
+int notempty(SDL_Color color) {
 	if (color.g != 25) return 1;
 	return 0;
 }
 // black board
 Board::Board() : curPiece() {
 	for (int i = 0; i < HEIGHT; i++) {
-		for (int j = 0; j < WIDTH; j++)
-		board[i][j] = grey;
+		for (int j = 0; j < WIDTH; j++) board[i][j] = grey;
 	}
 }
 
@@ -51,7 +50,7 @@ int Board::line() {
 	return -1;
 }
 
-bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
+bool Board::update(int move, SDL_Renderer* renderer, int* correct_line) {
 	int x = curPiece.getX();
 	int y = curPiece.getY();
 	Shape s = curPiece.getShape();
@@ -102,13 +101,13 @@ bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
 		rotate2();
 	}
 
-    bool b2 = absorb();
-    while (line() != -1) {
+	bool b2 = absorb();
+	while (line() != -1) {
 		printf("oui\n");
-        gravity(line());
-        (* correct_line) ++;
-    }
-    return b2;
+		gravity(line());
+		(*correct_line)++;
+	}
+	return b2;
 }
 
 bool Board::fit(Piece p) {
@@ -178,14 +177,14 @@ bool Board::absorb() {
 
 		if (!fit(p)) {	// game over
 			SDL_Delay(50);
-            return false;
+			return false;
 		}
 	}
 	return true;
 }
 
-void Board::gravity_piece(SDL_Renderer * renderer, int * correct_line) {
-    update(DOWN, renderer, correct_line);
+void Board::gravity_piece(SDL_Renderer* renderer, int* correct_line) {
+	update(DOWN, renderer, correct_line);
 }
 /*
 vector<vector<SDL_Color>> Board::get_Board()

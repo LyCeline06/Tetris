@@ -15,24 +15,23 @@
 #include <thread>
 #include <vector>
 
-#include "Stat.h"
 #include "Board.h"
 #include "Piece.h"
 #include "Shape.h"
+#include "Stat.h"
 
 using namespace std;
 
 class Player {
-	protected :
-		Board *board;
-		int correct_line;
+   protected:
+	Board* board;
+	int correct_line;
+	int correct_line_ai;
 
-	public :
-		Player();
-		Board* get_board();
-		int get_correct_line();
-
+   public:
+	Player();
+	Board* get_board();
+	int get_correct_line();
 };
-
 
 #endif

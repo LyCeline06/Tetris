@@ -28,7 +28,6 @@ class Piece {
 	int wid();
 	int hei();
 	int Real_x();
-
 };
 
 #endif

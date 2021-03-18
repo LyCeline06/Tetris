@@ -2,10 +2,10 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <time.h>
+
 #include <cmath>
 #include <iostream>
 #include <vector>
-
 
 #include "../include/Game.h"
 
