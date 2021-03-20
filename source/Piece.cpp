@@ -58,3 +58,45 @@ void Piece::draw_piece(SDL_Renderer* renderer, int ai) {
 				}
 	}
 }
+
+
+int Piece::wid(){
+	s=getShape();
+	int wid=0;
+	int count=0;
+	for (int i=0;i<s.size;i++){
+		for (int j=0;j<s.size;j++){
+			if (s.matrix[i][j])
+				count+=1;
+		}
+		if (count>wid)
+			wid=count;
+		count=0;
+	}
+	return wid;
+}
+
+int Piece::hei(){
+	Shape s=getShape();
+	int hei=0;
+	int count=0;
+	for (int j=0;j<s.size;j++){
+		for (int i=0;i<s.size;i++){
+			if (s.matrix[i][j])
+				count+=1;
+		}
+		if (count>hei)
+			hei=count;
+		count=0;
+	}
+	return hei;
+}
+
+int Piece::Real_x(){
+	Shape s =getShape();
+	for (int j=0;j<s.size;j++)
+		for (int i=0;i<s.size;i++)
+			if(s.matrix[i][j])
+				return j+x;
+	return -1;
+}

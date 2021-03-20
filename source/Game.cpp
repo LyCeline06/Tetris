@@ -6,6 +6,7 @@
 #define GAMEOVER "utils/gameover.bmp"
 #define WIN "utils/win.jpg"
 
+
 //************* AUDIO RELATED **************************************
 
 Uint8 *audio_pos;  // global pointer to the audio buffer to be played
@@ -52,7 +53,7 @@ void Game::entrymusic() {
 
 //************* CONSTRUCTOR/DESTRUCTOR ****************************
 
-Game::Game() : correct_line(0), gravity_speed(0.48), level(0)
+Game::Game()
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 		cout << "Failed at SDL_Init()" << endl;
@@ -92,8 +93,6 @@ Game::Game() : correct_line(0), gravity_speed(0.48), level(0)
 		cout << "Could not load image on background \n"
 			 << SDL_GetError() << endl;
 
-	board = new Board();
-
 	// game-over
 	image = SDL_LoadBMP(GAMEOVER);
 	if (image == NULL)
@@ -102,7 +101,7 @@ Game::Game() : correct_line(0), gravity_speed(0.48), level(0)
 
 	gameover = SDL_CreateTextureFromSurface(renderer, image);
 
-	// background image
+		// background image
 	image_win = IMG_Load(WIN);
 	if (!surface) cout << "Could not load image \n" << SDL_GetError() << endl;
 
@@ -117,12 +116,12 @@ Game::~Game() {
 	SDL_FreeSurface(image);
 	SDL_DestroyTexture(texture);
 	SDL_DestroyTexture(gameover);
-	SDL_DestroyTexture(win);
 	SDL_DestroyTexture(background);
+	TTF_Quit();
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
-	TTF_Quit();
 	SDL_Quit();
+
 }
 
 //*****************************************************************
@@ -203,7 +202,7 @@ void Game::menu() {
 		Message_rect.y = (h - Message_rect.h) * 0.7;
 		if (fmod(SDL_GetTicks(), 300) > 50) {
 			SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
-		}		
+		}
 
 		// CREATORS
 		surface = TTF_RenderText_Solid(font, "BY CELINE & YASSINE", White);
@@ -225,263 +224,31 @@ void Game::menu() {
 	}
 };
 
-bool Game::input(Board *board, const Uint8 *keys) {
-	// if (keys[SDL_SCANCODE_RETURN])
-	//	std::cout<< "<RETURN> is pressed."<< std::endl;
-    bool b = true;
 
-	if (keys[SDL_SCANCODE_UP]) {
-		board->update(UP, renderer, &correct_line);
-	}
 
-	if (keys[SDL_SCANCODE_DOWN]) board->update(DOWN, renderer, &correct_line);
 
-	if (keys[SDL_SCANCODE_LEFT]) board->update(LEFT, renderer, &correct_line);
 
-	if (keys[SDL_SCANCODE_RIGHT]) board->update(RIGHT, renderer, &correct_line);
-
-    if (keys[SDL_SCANCODE_ESCAPE])
-        running = false;
-    else {
-        b = board -> absorb();
-    }
-    return b;
-}
-bool Game::input_ai(Board_ai *board, const Uint8 *keys) {
-	// if (keys[SDL_SCANCODE_RETURN])
-	//	std::cout<< "<RETURN> is pressed."<< std::endl;
-    bool b = true;
-
-	if (keys[SDL_SCANCODE_UP]) {
-		board->update_ai(UP_AI, renderer, &correct_line_ai);
-	}
-
-	if (keys[SDL_SCANCODE_DOWN]) board->update_ai(DOWN_AI, renderer, &correct_line_ai);
-
-	if (keys[SDL_SCANCODE_LEFT]) board->update_ai(LEFT_AI, renderer, &correct_line_ai);
-
-	if (keys[SDL_SCANCODE_RIGHT]) board->update_ai(RIGHT_AI, renderer, &correct_line_ai);
-
-    if (keys[SDL_SCANCODE_ESCAPE])
-        running = false;
-    else {
-        b = board -> absorb_ai();
-    }
-    return b;
-}
-void Game::render() {
-	// set background color
-	SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
-	// apply
-	SDL_RenderClear(renderer);
-
-	frameCount++;
-	int timerFPS = SDL_GetTicks() - lastFrame;
-	if (timerFPS < (1000 / 60)) {
-		SDL_Delay((1000 / 60) - timerFPS);
-	}
+void Game::start_solo()
+{
+	human.play(renderer, &running, end_b, gameover, frameCount,
+		timerFPS, lastFrame, fps, window);
 }
 
+void Game::start_IA_solo()
+{
+	machine.play(renderer, &running, end_b, gameover, win, frameCount,
+		timerFPS, lastFrame, fps, window, human);
 
-void Game::start_solo() {
-	SDL_SetWindowSize(window, WIDTH*2*tile_size, HEIGHT*tile_size);
-    bool b2 = true;
-	static int lastTime = 0;
-	running = 1;
-	time_t timer;
-	time(&timer);
 
-	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
-	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
-	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
-
-	// Etats kyb
-	const Uint8 *state = SDL_GetKeyboardState(NULL);
-	while (running && !end_b) {
-		SDL_Event event;
-		while (running &&
-			   SDL_PollEvent(&event))  // avoir attennte non bloquante
-		{
-			switch (event.type) {
-				case SDL_QUIT:
-					running = 0;
-					printf("game quit\n");
-					exit(1);
-					break;
-				case SDL_MOUSEBUTTONDOWN:
-					printf("mouse click %d\n", event.button.button);
-					break;
-				default:
-					// printf("non identified type of event\n");
-					break;
-			}
-		}
-
-		if (time(nullptr) - timer > gravity_speed)  // gravity of current piece
-		{
-			board->gravity_piece(renderer, &correct_line);
-			time(&timer);
-		}
-		lastFrame = SDL_GetTicks();
-		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
-		{
-			lastTime = lastFrame;
-			fps = frameCount;
-			frameCount = 0;
-            b2 = input(board, state);
-		}
-
-		render();  // display piece and board
-
-        if (b2) {
-			render();  // display piece and board
-            board -> draw_board(renderer, 2);
-            board -> getcurPiece().draw_piece(renderer);
-            score.render_stat(&correct_line);
-			lines.render_stat(&correct_line);
-			level.render_stat(&correct_line);
-            SDL_RenderPresent(renderer);
-
-        } else {
-			SDL_Rect rec;
-			rec.w=WIDTH*tile_size;
-			rec.h=HEIGHT*tile_size;
-			rec.x=0;
-			rec.y=0;
-            SDL_RenderCopy(renderer, gameover, NULL, &rec);
-			score.render_stat(&correct_line);
-			lines.render_stat(&correct_line);
-			level.render_stat(&correct_line);
-            SDL_RenderPresent(renderer);
-
-        }
-	}
 }
 
-void Game::start_ia(){
-	
-	board_ai = new Board_ai();
-	SDL_SetWindowSize(window, WIDTH*4*tile_size, HEIGHT*tile_size);
-
-    bool b2 = true;
-	bool bai2=true;
-	static int lastTime = 0;
-	running = 1;
-	time_t timer;
-	time(&timer);
-
-	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
-	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
-	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
-
-	Stat score_AI((char*)"SCORE AI", 0, 1000, 0, renderer, 1);
-	Stat level_AI((char*)"LEVEL AI", 4*tile_size, 1, 0, renderer, 1);
-	Stat lines_AI((char*)"LINES AI", 8*tile_size, 1, 1, renderer, 1);
-	
-	// Etats kyb
-	const Uint8 *state = SDL_GetKeyboardState(NULL);
-	while (running && !end_b) {
-		SDL_Event event;
-		while (running &&
-			   SDL_PollEvent(&event))  // avoir attennte non bloquante
-		{
-			switch (event.type) {
-				case SDL_QUIT:
-					running = 0;
-					printf("game quit\n");
-					exit(1);
-					break;
-				case SDL_MOUSEBUTTONDOWN:
-					printf("mouse click %d\n", event.button.button);
-					break;
-				default:
-					// printf("non identified type of event\n");
-					break;
-			}
-		}
-
-		if (time(nullptr) - timer > gravity_speed)  // gravity of current piece
-		{
-			board->gravity_piece(renderer, &correct_line);
-			board_ai->gravity_piece_ai(renderer, &correct_line_ai);
-			time(&timer);
-		}
-		lastFrame = SDL_GetTicks();
-		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
-		{
-			lastTime = lastFrame;
-			fps = frameCount;
-			frameCount = 0;
-            b2 = input(board, state);
-		    bai2 = input_ai(board_ai, state);
-			
-		}
-
-		render();  // display piece and board
-
-        if (b2 && bai2) {
-			render();  // display piece and board
-            //board -> draw_board(renderer, WIDTH*2*tile_size);
-			board -> draw_board(renderer, 2);
-            board -> getcurPiece().draw_piece(renderer);			
-			board_ai -> draw_board_ai(renderer, 2);
-            board_ai -> getcurPiece_ai().draw_piece(renderer, WIDTH_AI*2);
-            score.render_stat(&correct_line);
-			lines.render_stat(&correct_line);
-			level.render_stat(&correct_line);
-            score_AI.render_stat(&correct_line_ai);
-			lines_AI.render_stat(&correct_line_ai);
-			level_AI.render_stat(&correct_line_ai);			
-            SDL_RenderPresent(renderer);
-
-        } else {
-			SDL_Rect rec;
-			if(!b2){
-			rec.w=WIDTH*tile_size;
-			rec.h=HEIGHT*tile_size;
-			rec.x=0;
-			rec.y=0;
-            SDL_RenderCopy(renderer, gameover, NULL, &rec);
-			rec.w=WIDTH*tile_size;
-			rec.h=HEIGHT*tile_size;
-			rec.x=2*WIDTH*tile_size;
-			rec.y=0;
-            SDL_RenderCopy(renderer, win, NULL, &rec);
-			}
-			else{
-			rec.w=WIDTH*tile_size;
-			rec.h=HEIGHT*tile_size;
-			rec.x=0;
-			rec.y=0;
-            SDL_RenderCopy(renderer, win, NULL, &rec);
-			rec.w=WIDTH*tile_size;
-			rec.h=HEIGHT*tile_size;
-			rec.x=2*WIDTH*tile_size;
-			rec.y=0;
-            SDL_RenderCopy(renderer, gameover, NULL, &rec);				
-			}
-
-            score.render_stat(&correct_line);
-			lines.render_stat(&correct_line);
-			level.render_stat(&correct_line);
-            score_AI.render_stat(&correct_line_ai);
-			lines_AI.render_stat(&correct_line_ai);
-			level_AI.render_stat(&correct_line_ai);
-            SDL_RenderPresent(renderer);
-
-        }
-	}
-}
 
 void Game::start() {
 	srand(time(NULL));
-	correct_line=0;
-	correct_line_ai= 0;
-	if (gamemode == MODE_SOLO) start_solo();
-	if (gamemode == MODE_IA) start_ia();
 
-	// end game
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+	if (gamemode == MODE_SOLO) start_solo();
+
+	if (gamemode == MODE_IA) start_IA_solo();
+
+	return;
 };
