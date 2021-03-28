@@ -51,7 +51,7 @@ int Board::line() {
 	return -1;
 }
 
-bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
+bool Board::update(int move, SDL_Renderer * renderer, pair<int,int>* correct_line) {
 	int x = curPiece.getX();
 	int y = curPiece.getY();
 	Shape s = curPiece.getShape();
@@ -104,9 +104,10 @@ bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
 
     bool b2 = absorb();
     while (line() != -1) {
-		printf("oui\n");
         gravity(line());
-        (* correct_line) ++;
+        correct_line->first ++;
+        correct_line->second ++;
+
     }
     return b2;
 }
@@ -184,7 +185,7 @@ bool Board::absorb() {
 	return true;
 }
 
-void Board::gravity_piece(SDL_Renderer * renderer, int * correct_line) {
+void Board::gravity_piece(SDL_Renderer * renderer, pair<int,int> * correct_line) {
     update(DOWN, renderer, correct_line);
 }
 /*

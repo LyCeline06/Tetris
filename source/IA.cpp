@@ -138,6 +138,8 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 	SDL_Texture* gameover, SDL_Texture* win, int frameCount, int timerFPS, int lastFrame, int fps,
 	SDL_Window* window, Player1 human) {
 
+	srand(time(NULL));
+
 	SDL_SetWindowSize(window, WIDTH*4*tile_size, HEIGHT*tile_size);
 
     bool b2 = true;
@@ -147,13 +149,14 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 	time_t timer;
 	time(&timer);
 
-	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
-	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
-	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
+	Score score((char*)"SCORE", 0, 40, renderer,0);
+	Level level((char*)"LEVEL", 4*tile_size, 1, renderer,0);
+	Lines lines((char*)"LINES", 8*tile_size, 1, renderer,0);
 
-	Stat score_AI((char*)"SCORE AI", 0, 1000, 0, renderer, 1);
-	Stat level_AI((char*)"LEVEL AI", 4*tile_size, 1, 0, renderer, 1);
-	Stat lines_AI((char*)"LINES AI", 8*tile_size, 1, 1, renderer, 1);
+
+	Score score_AI((char*)"SCORE", 0, 40, renderer,1);
+	Level level_AI((char*)"LEVEL", 4*tile_size, 1, renderer,1);
+	Lines lines_AI((char*)"LINES", 8*tile_size, 1, renderer,1);
 
 	// Etats kyb
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -177,14 +180,14 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 			}
 		}
 
-		if (time(nullptr) - timer > 0.5)  // gravity of current piece
+		if (time(nullptr) - timer > speed)  // gravity of current piece
 		{
 			board->gravity_piece(renderer, &correct_line);
 			human.board->gravity_piece(renderer, &human.correct_line);
 			time(&timer);
 		}
 		lastFrame = SDL_GetTicks();
-		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
+		if (lastFrame - lastTime >= 60)	 // min speed to move pieces
 		{
 			lastTime = lastFrame;
 			fps = frameCount;
@@ -205,10 +208,10 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
             board -> getcurPiece().draw_piece(renderer, WIDTH*2);
             score.render_stat(&human.correct_line);
 			lines.render_stat(&human.correct_line);
-			level.render_stat(&human.correct_line);
+			level.render_stat(&human.correct_line, &human.speed, &human.level_);
             score_AI.render_stat(&correct_line);
 			lines_AI.render_stat(&correct_line);
-			level_AI.render_stat(&correct_line);
+			level_AI.render_stat(&correct_line, &speed, &level_);
             SDL_RenderPresent(renderer);
 
         } else {
@@ -240,12 +243,14 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 
             score.render_stat(&human.correct_line);
 			lines.render_stat(&human.correct_line);
-			level.render_stat(&human.correct_line);
+			level.render_stat(&human.correct_line, &human.speed, &human.level_);
             score_AI.render_stat(&correct_line);
 			lines_AI.render_stat(&correct_line);
-			level_AI.render_stat(&correct_line);
+			level_AI.render_stat(&correct_line, &speed, &level_);
             SDL_RenderPresent(renderer);
 
         }
+			correct_line.second = 0;
+			human.correct_line.second = 0;
 	}
 }

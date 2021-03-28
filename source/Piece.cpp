@@ -1,5 +1,4 @@
 #include "../include/Piece.h"
-
 #include "../include/Board.h"
 
 Piece::Piece() {

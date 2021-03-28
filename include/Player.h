@@ -25,12 +25,13 @@ using namespace std;
 class Player {
 	protected :
 		Board *board;
-		int correct_line;
-
+		pair<int,int> correct_line; //first : accumulator of second ; second : nb of correct lines not disappeared yet
+		int level_;
+		float speed;
 	public :
 		Player();
 		Board* get_board();
-		int get_correct_line();
+		pair<int,int> get_correct_line();
 
 };
 

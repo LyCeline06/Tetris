@@ -244,7 +244,6 @@ void Game::start_IA_solo()
 
 
 void Game::start() {
-	srand(time(NULL));
 
 	if (gamemode == MODE_SOLO) start_solo();
 
