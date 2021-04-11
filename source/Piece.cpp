@@ -72,6 +72,7 @@ int Piece::wid(){
 			wid=count;
 		count=0;
 	}
+
 	return wid;
 }
 

@@ -27,7 +27,7 @@ class Ia : protected Player
 		Ia();
 
 		int Height_Column(int j);
-		int Lower_Position();
+		int Lower_Position(Piece p);
 		int Height_Visualisation(int j, Piece p);
 		int Choose_Rotation();
 		bool IA_method(SDL_Renderer* renderer);

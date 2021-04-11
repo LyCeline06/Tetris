@@ -10,58 +10,38 @@ int Ia::Height_Column(int j){
 	return 0;
 }
 
-int Ia::Lower_Position(){
+int Ia::Lower_Position(Piece p){
 	int j=0;
-	int res=HEIGHT;
-	Piece curPiece = board->getcurPiece();
-	int hei=curPiece.hei();
-	int wid=curPiece.wid();
-	if (wid<hei)
-		{for (int k=0;k<=WIDTH-wid;k++){
-			int h=Height_Column(k);
-			for(int l=0;(l<wid);l++)
-				if (Height_Column(k+l)>h)
-					h=Height_Column(k+l);
-			if (h<res){
-				j=k;
-				res=h;
-			}
-		}
-		return j;}
-	else
-	{for (int k=0;k<=WIDTH-hei;k++){
-		int h=Height_Column(k);
-		for(int l=0;(l<hei);l++)
-			if (Height_Column(k+l)>h)
-				h=Height_Column(k+l);
-		if (h<res){
+	int res=0;
+	p.setX(0);
+
+	for (int k=0;k<WIDTH;k++){
+		int h=Height_Visualisation(k,p);
+		if (h>res){
 			j=k;
 			res=h;
-		}
-	}
-	return j;}
+				}
+			}
+	return j;
 }
 
 int Ia::Height_Visualisation(int j, Piece p){
+	p.setY(0);
 	int y=p.getY();
-	int x2=p.Real_x();
-	int x=p.getX();
 	int hei=p.hei();
-	p.setX(j+x2-x);
+	p.setX(j);
 	while(board->fit(p)){
 		y=p.getY();
 		p.setY(y+1);
 	}
-	p.setY(y-1);
 	return y+hei;
-
 }
 
 int Ia::Choose_Rotation(){
-	Piece p= board->getcurPiece();
+	Piece p=board->getcurPiece();
 	int y=p.getY();
 	Shape s = p.getShape();
-	int j=Lower_Position();
+	int j=Lower_Position(p);
 	int val=Height_Visualisation(j,p);
 	int l=0;
 	for (int k=0;k<3;k++){
@@ -69,6 +49,7 @@ int Ia::Choose_Rotation(){
 		s=s2;
 		p.setShape(s2);
 		p.setY(y);
+		j=Lower_Position(p);
 		if (Height_Visualisation(j,p)>val){
 			val=Height_Visualisation(j,p);
 			l=k;
@@ -80,20 +61,21 @@ int Ia::Choose_Rotation(){
 bool Ia::IA_method(SDL_Renderer* renderer){
 	int k=Choose_Rotation();
 	int y=board->getcurPiece().getY();
-	if (y==0){
+
+	if (y==0)
 		for (int l=0;l<k;l++)
 			board->rotate2();
-		}
-	int j=Lower_Position();
-	bool b;
-	int x=board->getcurPiece().getX();
-	if (x<j){
-		b=board->update(RIGHT,renderer, &correct_line);
-	}
 
-	if (x>j){
+	int j=Lower_Position(board->getcurPiece());
+	bool b;
+	int x=board->getcurPiece().Real_x();
+
+	if (x<j)
+		b=board->update(RIGHT,renderer, &correct_line);
+
+	if (x>j)
 		b=board->update(LEFT,renderer, &correct_line);
-	}
+
 	b=board->update(DOWN,renderer, &correct_line);
 	return b;
 }
