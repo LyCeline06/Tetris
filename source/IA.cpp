@@ -76,7 +76,13 @@ bool Ia::IA_method(SDL_Renderer* renderer){
 	if (x>j)
 		b=board->update(LEFT,renderer, &correct_line);
 
-	b=board->update(DOWN,renderer, &correct_line);
+	if (y > 1 && rand() %2)
+		b=board->update(DOWN,renderer, &correct_line);
+	else if (y < 1)
+		b=board->update(DOWN,renderer, &correct_line);
+	else
+		b = true;
+
 	return b;
 }
 
@@ -183,7 +189,6 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 
         if (b2 && bai2) {
 			render(renderer, frameCount, lastFrame);  // display piece and board
-            //board -> draw_board(renderer, WIDTH*2*tile_size);
 			human.board -> draw_board(renderer, 0);
             human.board -> getcurPiece().draw_piece(renderer);
 			board -> draw_board(renderer, WIDTH*2*tile_size);
@@ -232,7 +237,10 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
             SDL_RenderPresent(renderer);
 
         }
-			correct_line.second = 0;
-			human.correct_line.second = 0;
+		human.board->adjust_board(correct_line.second);
+		board->adjust_board(human.correct_line.second);
+
+		correct_line.second = 0;
+		human.correct_line.second = 0;
 	}
 }

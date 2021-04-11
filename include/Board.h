@@ -35,6 +35,10 @@ public:
 	bool absorb();
 	void draw_board(SDL_Renderer* renderer, int border);
 	void gravity_piece(SDL_Renderer* renderer, pair<int,int>*);
+	void adjust_board(int nb_line);
+	void clear_line(int line);
+	void shift();
+
 };
 
 

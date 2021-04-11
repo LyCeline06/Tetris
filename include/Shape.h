@@ -16,6 +16,7 @@ struct Shape{
     int size;
 };
 
+static const SDL_Color clear_grey = {127,127,127,255};
 static const SDL_Color grey = {25,25,25,255};
 static const SDL_Color black = {0,0,0,255};
 static const SDL_Color green = {78,183,72,255};

@@ -90,8 +90,13 @@ void Score::render_stat(pair<int,int> *correct) {
 	}
 
 	sprintf(msg, "%i", stat);
-	get_text_and_rect(renderer, (WIDTH + 2) * tile_size,
+	if (ai)
+		get_text_and_rect(renderer, (WIDTH*3 + 2) * tile_size,
 					  4 + rect1.y + rect1.h, msg, font, &texture2, &rect2);
+	else
+		get_text_and_rect(renderer, (WIDTH + 2) * tile_size,
+					  4 + rect1.y + rect1.h, msg, font, &texture2, &rect2);
+
 }
 
 Lines::Lines(char *msg1, int nb, int score_base, SDL_Renderer *renderer, int ai) :
@@ -110,7 +115,11 @@ void Lines::render_stat(pair<int,int> *correct) {
 	else return;
 
 	sprintf(msg, "%i", stat);
-	get_text_and_rect(renderer, (WIDTH + 2) * tile_size,
+	if (ai)
+		get_text_and_rect(renderer, (WIDTH*3 + 2) * tile_size,
+					  4 + rect1.y + rect1.h, msg, font, &texture2, &rect2);
+	else
+		get_text_and_rect(renderer, (WIDTH + 2) * tile_size,
 					  4 + rect1.y + rect1.h, msg, font, &texture2, &rect2);
 }
 
@@ -134,6 +143,10 @@ void Level::render_stat(pair<int,int> *correct, float* speed, int* level) {
 	else return;
 
 	sprintf(msg, "%i", stat);
-	get_text_and_rect(renderer, (WIDTH + 2) * tile_size,
+	if (ai)
+		get_text_and_rect(renderer, (WIDTH*3 + 2) * tile_size,
+					  4 + rect1.y + rect1.h, msg, font, &texture2, &rect2);
+	else
+		get_text_and_rect(renderer, (WIDTH + 2) * tile_size,
 					  4 + rect1.y + rect1.h, msg, font, &texture2, &rect2);
 }
