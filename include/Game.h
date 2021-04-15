@@ -15,12 +15,14 @@
 #include <thread>
 #include <vector>
 
-#include "Stat.h"
 #include "Board.h"
-#include "Piece.h"
-#include "Shape.h"
-#include "Player1.h"
+#include "Client.h"
 #include "IA.h"
+#include "Multi.h"
+#include "Piece.h"
+#include "Player1.h"
+#include "Shape.h"
+#include "Stat.h"
 
 using namespace std;
 
@@ -36,50 +38,56 @@ struct Sound {
 	SDL_AudioSpec wav_spec;
 };
 
-enum {MODE_SOLO, MODE_IA};
+enum { MODE_SOLO, MODE_IA, MODE_MULTI, MODE_CLIENT };
 
 class Game {
-    public:
-		/* @brief Game constructor
-		creates window , sound and background */
-		Game();
-		/* @brief Game menu
-		creates window , sound and background */
-		void menu();
-		/* @brief plays entry sound  */
-		void entrymusic();
-		/* @brief Game destructor */
-		~Game();
+   public:
+	/* @brief Game constructor
+	creates window , sound and background */
+	Game();
+	/* @brief Game menu
+	creates window , sound and background */
+	void menu();
+	/* @brief plays entry sound  */
+	void entrymusic();
+	/* @brief Game destructor */
+	~Game();
 
-		void start();
-		void start_solo();
-		void start_IA_solo();
+	void start();
+	void start_solo();
+	void start_IA_solo();
+	void start_multi();
+	void start_client();
 
+   private:
+	SDL_Surface* surface;
+	SDL_Texture* texture;
+	TTF_Font* font;
 
+	Sound s;
 
-    private:
-		SDL_Surface* surface;
-		SDL_Texture* texture;
-		TTF_Font* font;
+	SDL_Texture* background;
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	int width;
+	int height;
+	SDL_Texture* gameover;
+	SDL_Texture* win;
+	SDL_Texture* client_img;
+	SDL_Surface* image;
+	SDL_Surface* image_win;
+	SDL_Surface* image_client;
+	int frameCount, timerFPS, lastFrame, fps;
+	bool running;
+	bool end_b = false;
 
-		Sound s;
+	int gamemode;
+	Player1 human;
+	Player1 humany;
+	Multi multi;
+	Client client;
 
-		SDL_Texture* background;
-		SDL_Window* window;
-		SDL_Renderer* renderer;
-		int width;
-		int height;
-		SDL_Texture* gameover;
-		SDL_Texture* win;
-		SDL_Surface *image;
-		SDL_Surface *image_win;
-		int frameCount, timerFPS, lastFrame, fps;
-		bool running;
-		bool end_b = false;
-
-		int gamemode;
-		Player1 human;
-		Ia machine;
+	Ia machine;
 };
 
 #endif

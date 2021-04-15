@@ -22,6 +22,7 @@
 #include "Player.h"
 
 class Ia;
+class Multi;
 
 class Player1 : protected Player
 {
@@ -37,6 +38,7 @@ class Player1 : protected Player
 			int fps, SDL_Window* window);
 
 		friend class Ia;
+		friend class Multi;
 };
 
 #endif

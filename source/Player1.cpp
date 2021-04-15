@@ -43,6 +43,8 @@ void Player1::play(SDL_Renderer* renderer, bool running, bool end_b,
 	SDL_Texture* gameover, int frameCount, int timerFPS, int lastFrame, int fps,
 	SDL_Window* window) {
 
+	srand(time(NULL));
+
 	SDL_SetWindowSize(window, WIDTH*2*tile_size, HEIGHT*tile_size);
     bool b2 = true;
 	static int lastTime = 0;
@@ -50,10 +52,9 @@ void Player1::play(SDL_Renderer* renderer, bool running, bool end_b,
 	time_t timer;
 	time(&timer);
 
-	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
-	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
-	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
-
+	Score score((char*)"SCORE", 0, 40, renderer,0);
+	Level level((char*)"LEVEL", 4*tile_size, 1, renderer,0);
+	Lines lines((char*)"LINES", 8*tile_size, 1, renderer,0);
 	// Etats kyb
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 	while (running && !end_b) {
@@ -76,13 +77,13 @@ void Player1::play(SDL_Renderer* renderer, bool running, bool end_b,
 			}
 		}
 
-		if (time(nullptr) - timer > 0.5)  // gravity of current piece
+		if (time(nullptr) - timer > speed)  // gravity of current piece
 		{
 			board->gravity_piece(renderer, &correct_line);
 			time(&timer);
 		}
 		lastFrame = SDL_GetTicks();
-		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
+		if (lastFrame - lastTime >= 60)	 // min speed to move pieces
 		{
 			lastTime = lastFrame;
 			fps = frameCount;
@@ -96,9 +97,10 @@ void Player1::play(SDL_Renderer* renderer, bool running, bool end_b,
 			render(renderer, frameCount, lastFrame);  // display piece and board
             board -> draw_board(renderer, 0);
             board -> getcurPiece().draw_piece(renderer);
+
             score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
-			level.render_stat(&correct_line);
+			level.render_stat(&correct_line, &speed, &level_);
             SDL_RenderPresent(renderer);
 
         } else {
@@ -108,11 +110,14 @@ void Player1::play(SDL_Renderer* renderer, bool running, bool end_b,
 			rec.x=0;
 			rec.y=0;
             SDL_RenderCopy(renderer, gameover, NULL, &rec);
+
 			score.render_stat(&correct_line);
 			lines.render_stat(&correct_line);
-			level.render_stat(&correct_line);
+			level.render_stat(&correct_line, &speed, &level_);
+
             SDL_RenderPresent(renderer);
 
         }
+		correct_line.second = 0;
 	}
 }

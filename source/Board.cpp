@@ -7,7 +7,6 @@
 #include <cmath>
 #include <iostream>
 
-int counter_butt = 0;
 
 int notempty(SDL_Color color){
 	if (color.g != 25) return 1;
@@ -51,7 +50,7 @@ int Board::line() {
 	return -1;
 }
 
-bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
+bool Board::update(int move, SDL_Renderer * renderer, pair<int,int>* correct_line) {
 	int x = curPiece.getX();
 	int y = curPiece.getY();
 	Shape s = curPiece.getShape();
@@ -96,17 +95,15 @@ bool Board::update(int move, SDL_Renderer * renderer, int * correct_line) {
 	}
 
 	if (move == UP) {
-		// up move
-		counter_butt++;
-		printf("up button %d\n", counter_butt);
 		rotate2();
 	}
 
     bool b2 = absorb();
     while (line() != -1) {
-		printf("oui\n");
         gravity(line());
-        (* correct_line) ++;
+        correct_line->first ++;
+        correct_line->second ++;
+
     }
     return b2;
 }
@@ -167,7 +164,6 @@ bool Board::absorb() {
 					b = true;
 			}
 	if (b) {
-		SDL_Delay(50);
 		for (int i = 0; i < s.size; i++)
 			for (int j = 0; j < s.size; j++)
 				if (s.matrix[i][j]) {
@@ -177,18 +173,56 @@ bool Board::absorb() {
 		curPiece = p;
 
 		if (!fit(p)) {	// game over
-			SDL_Delay(50);
             return false;
 		}
 	}
 	return true;
 }
 
-void Board::gravity_piece(SDL_Renderer * renderer, int * correct_line) {
+void Board::gravity_piece(SDL_Renderer * renderer, pair<int,int> * correct_line) {
     update(DOWN, renderer, correct_line);
 }
-/*
-vector<vector<SDL_Color>> Board::get_Board()
+
+void Board::shift()
 {
-	return board;
-}*/
+	for (int i = 0; i < HEIGHT; ++i)
+		board[i] = board[i+1];
+}
+
+void Board::clear_line(int line)
+{
+	int hole = rand() % WIDTH-1;
+
+	for(int j=0; j < WIDTH; ++j)
+		board[line][j] = clear_grey;
+	board[line][hole] = grey;
+}
+
+void Board::adjust_board(int nb_line)
+{
+	switch(nb_line)
+	{
+		case 1 :
+			shift();
+			clear_line(HEIGHT-1);
+			break;
+		case 3 :
+			shift();
+			shift();
+			clear_line(HEIGHT-1);
+			clear_line(HEIGHT-2);
+			break;
+
+		case 4 :
+			shift();
+			shift();
+			shift();
+			shift();
+			clear_line(HEIGHT-1);
+			clear_line(HEIGHT-2);
+			clear_line(HEIGHT-3);
+			clear_line(HEIGHT-4);
+			break;
+		default: ;
+	}
+}

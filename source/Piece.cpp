@@ -1,5 +1,4 @@
 #include "../include/Piece.h"
-
 #include "../include/Board.h"
 
 Piece::Piece() {
@@ -73,6 +72,7 @@ int Piece::wid(){
 			wid=count;
 		count=0;
 	}
+
 	return wid;
 }
 

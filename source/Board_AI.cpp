@@ -7,7 +7,6 @@
 #include <cmath>
 #include <iostream>
 
-int counter_butt_ai = 0;
 
 int notempty_ai(SDL_Color color){
 	if (color.g != 25) return 1;
@@ -96,9 +95,6 @@ bool Board_ai::update_ai(int move, SDL_Renderer * renderer, int * correct_line_a
 	}
 
 	if (move == UP_AI) {
-		// up move
-		counter_butt_ai++;
-		printf("up button %d\n", counter_butt_ai);
 		rotate2_ai();
 	}
 

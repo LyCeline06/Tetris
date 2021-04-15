@@ -10,58 +10,38 @@ int Ia::Height_Column(int j){
 	return 0;
 }
 
-int Ia::Lower_Position(){
+int Ia::Lower_Position(Piece p){
 	int j=0;
-	int res=HEIGHT;
-	Piece curPiece = board->getcurPiece();
-	int hei=curPiece.hei();
-	int wid=curPiece.wid();
-	if (wid<hei)
-		{for (int k=0;k<=WIDTH-wid;k++){
-			int h=Height_Column(k);
-			for(int l=0;(l<wid);l++)
-				if (Height_Column(k+l)>h)
-					h=Height_Column(k+l);
-			if (h<res){
-				j=k;
-				res=h;
-			}
-		}
-		return j;}
-	else
-	{for (int k=0;k<=WIDTH-hei;k++){
-		int h=Height_Column(k);
-		for(int l=0;(l<hei);l++)
-			if (Height_Column(k+l)>h)
-				h=Height_Column(k+l);
-		if (h<res){
+	int res=0;
+	p.setX(0);
+
+	for (int k=0;k<WIDTH;k++){
+		int h=Height_Visualisation(k,p);
+		if (h>res){
 			j=k;
 			res=h;
-		}
-	}
-	return j;}
+				}
+			}
+	return j;
 }
 
 int Ia::Height_Visualisation(int j, Piece p){
+	p.setY(0);
 	int y=p.getY();
-	int x2=p.Real_x();
-	int x=p.getX();
 	int hei=p.hei();
-	p.setX(j+x2-x);
+	p.setX(j);
 	while(board->fit(p)){
 		y=p.getY();
 		p.setY(y+1);
 	}
-	p.setY(y-1);
 	return y+hei;
-
 }
 
 int Ia::Choose_Rotation(){
-	Piece p= board->getcurPiece();
+	Piece p=board->getcurPiece();
 	int y=p.getY();
 	Shape s = p.getShape();
-	int j=Lower_Position();
+	int j=Lower_Position(p);
 	int val=Height_Visualisation(j,p);
 	int l=0;
 	for (int k=0;k<3;k++){
@@ -69,6 +49,7 @@ int Ia::Choose_Rotation(){
 		s=s2;
 		p.setShape(s2);
 		p.setY(y);
+		j=Lower_Position(p);
 		if (Height_Visualisation(j,p)>val){
 			val=Height_Visualisation(j,p);
 			l=k;
@@ -80,21 +61,28 @@ int Ia::Choose_Rotation(){
 bool Ia::IA_method(SDL_Renderer* renderer){
 	int k=Choose_Rotation();
 	int y=board->getcurPiece().getY();
-	if (y==0){
+
+	if (y==0)
 		for (int l=0;l<k;l++)
 			board->rotate2();
-		}
-	int j=Lower_Position();
-	bool b;
-	int x=board->getcurPiece().getX();
-	if (x<j){
-		b=board->update(RIGHT,renderer, &correct_line);
-	}
 
-	if (x>j){
+	int j=Lower_Position(board->getcurPiece());
+	bool b;
+	int x=board->getcurPiece().Real_x();
+
+	if (x<j)
+		b=board->update(RIGHT,renderer, &correct_line);
+
+	if (x>j)
 		b=board->update(LEFT,renderer, &correct_line);
-	}
-	b=board->update(DOWN,renderer, &correct_line);
+
+	if (y > 1 && rand() %2)
+		b=board->update(DOWN,renderer, &correct_line);
+	else if (y < 1)
+		b=board->update(DOWN,renderer, &correct_line);
+	else
+		b = true;
+
 	return b;
 }
 
@@ -138,6 +126,8 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 	SDL_Texture* gameover, SDL_Texture* win, int frameCount, int timerFPS, int lastFrame, int fps,
 	SDL_Window* window, Player1 human) {
 
+	srand(time(NULL));
+
 	SDL_SetWindowSize(window, WIDTH*4*tile_size, HEIGHT*tile_size);
 
     bool b2 = true;
@@ -147,13 +137,14 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 	time_t timer;
 	time(&timer);
 
-	Stat score((char*)"SCORE", 0, 1000, 0, renderer);
-	Stat level((char*)"LEVEL", 4*tile_size, 1, 0, renderer);
-	Stat lines((char*)"LINES", 8*tile_size, 1, 1, renderer);
+	Score score((char*)"SCORE", 0, 40, renderer,0);
+	Level level((char*)"LEVEL", 4*tile_size, 1, renderer,0);
+	Lines lines((char*)"LINES", 8*tile_size, 1, renderer,0);
 
-	Stat score_AI((char*)"SCORE AI", 0, 1000, 0, renderer, 1);
-	Stat level_AI((char*)"LEVEL AI", 4*tile_size, 1, 0, renderer, 1);
-	Stat lines_AI((char*)"LINES AI", 8*tile_size, 1, 1, renderer, 1);
+
+	Score score_AI((char*)"SCORE", 0, 40, renderer,1);
+	Level level_AI((char*)"LEVEL", 4*tile_size, 1, renderer,1);
+	Lines lines_AI((char*)"LINES", 8*tile_size, 1, renderer,1);
 
 	// Etats kyb
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -177,14 +168,14 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 			}
 		}
 
-		if (time(nullptr) - timer > 0.5)  // gravity of current piece
+		if (time(nullptr) - timer > speed)  // gravity of current piece
 		{
 			board->gravity_piece(renderer, &correct_line);
 			human.board->gravity_piece(renderer, &human.correct_line);
 			time(&timer);
 		}
 		lastFrame = SDL_GetTicks();
-		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
+		if (lastFrame - lastTime >= 60)	 // min speed to move pieces
 		{
 			lastTime = lastFrame;
 			fps = frameCount;
@@ -198,17 +189,16 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 
         if (b2 && bai2) {
 			render(renderer, frameCount, lastFrame);  // display piece and board
-            //board -> draw_board(renderer, WIDTH*2*tile_size);
 			human.board -> draw_board(renderer, 0);
             human.board -> getcurPiece().draw_piece(renderer);
 			board -> draw_board(renderer, WIDTH*2*tile_size);
             board -> getcurPiece().draw_piece(renderer, WIDTH*2);
             score.render_stat(&human.correct_line);
 			lines.render_stat(&human.correct_line);
-			level.render_stat(&human.correct_line);
+			level.render_stat(&human.correct_line, &human.speed, &human.level_);
             score_AI.render_stat(&correct_line);
 			lines_AI.render_stat(&correct_line);
-			level_AI.render_stat(&correct_line);
+			level_AI.render_stat(&correct_line, &speed, &level_);
             SDL_RenderPresent(renderer);
 
         } else {
@@ -240,12 +230,17 @@ void Ia::play(SDL_Renderer* renderer, bool running, bool end_b,
 
             score.render_stat(&human.correct_line);
 			lines.render_stat(&human.correct_line);
-			level.render_stat(&human.correct_line);
+			level.render_stat(&human.correct_line, &human.speed, &human.level_);
             score_AI.render_stat(&correct_line);
 			lines_AI.render_stat(&correct_line);
-			level_AI.render_stat(&correct_line);
+			level_AI.render_stat(&correct_line, &speed, &level_);
             SDL_RenderPresent(renderer);
 
         }
+		human.board->adjust_board(correct_line.second);
+		board->adjust_board(human.correct_line.second);
+
+		correct_line.second = 0;
+		human.correct_line.second = 0;
 	}
 }
