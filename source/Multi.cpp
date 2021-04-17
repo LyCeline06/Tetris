@@ -7,20 +7,18 @@ int Multi::recv_msg(int sockfd) {
 	int n = read(sockfd, &msg, sizeof(int));
 
 	if (n < 0 || n != sizeof(int))
-		perror("ERROR reading int from server socket");
-
-	// printf("[DEBUG] Received int: %d\n", msg);
+		perror("Reading msg from client socket failed");
 	return msg;
 }
 
 bool Multi::input(SDL_Renderer *renderer, bool *running, int player,
-				   Player humany) {
+				  Player humany) {
 	bool b = true;
 	int msg;
 
 	msg = recv_msg(player);
 	Board *board = humany.get_board();
-	pair<int,int> correct_line = humany.get_correct_line();
+	pair<int, int> correct_line = humany.get_correct_line();
 
 	switch (msg) {
 		case 1:
@@ -66,7 +64,7 @@ int Multi::setup_listener(int portno) {
 	struct sockaddr_in serv_addr;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) perror("ERROR opening listener socket.");
+	if (sockfd < 0) perror("Opening listening socket failed");
 
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
@@ -74,9 +72,9 @@ int Multi::setup_listener(int portno) {
 	serv_addr.sin_port = htons(portno);
 
 	if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-		perror("ERROR binding listener socket.");
+		perror("Binding listener socket failed");
 
-	printf("[DEBUG] Listener set.\n");
+	printf("Waiting for players to join.\n");
 
 	return sockfd;
 }
@@ -85,7 +83,6 @@ void Multi::get_client(int lis_sockfd, int *cli_sockfd) {
 	int player_count = 0;
 
 	socklen_t clilen;
-	// struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
 
 	int num_conn = 0;
@@ -100,12 +97,12 @@ void Multi::get_client(int lis_sockfd, int *cli_sockfd) {
 			accept(lis_sockfd, (struct sockaddr *)&cli_addr, &clilen);
 
 		if (cli_sockfd[num_conn] < 0)
-			perror("ERROR accepting a connection from a client.");
+			perror("Accepting a connection from a client failed.");
 
 		write(cli_sockfd[num_conn], &num_conn, sizeof(int));
 
 		player_count++;
-		printf("Number of players is now %d.\n", player_count);
+		printf("The current number of players is %d.\n", player_count);
 
 		num_conn++;
 	}
@@ -122,16 +119,13 @@ void Multi::play(SDL_Renderer *renderer, bool running, bool end_b,
 	running = 1;
 	time_t timer;
 	time(&timer);
-	Score score((char*)"SCORE P1", 0, 40, renderer,0);
-	Level level((char*)"LEVEL P1", 4*tile_size, 1, renderer,0);
-	Lines lines((char*)"LINES P1", 8*tile_size, 1, renderer,0);
+	Score score((char *)"SCORE P1", 0, 40, renderer, 0);
+	Level level((char *)"LEVEL P1", 4 * tile_size, 1, renderer, 0);
+	Lines lines((char *)"LINES P1", 8 * tile_size, 1, renderer, 0);
 
-
-	Score score_p2((char*)"SCORE P2", 0, 40, renderer,1);
-	Level level_p2((char*)"LEVEL P2",4*tile_size, 1, renderer,1);
-	Lines lines_p2((char*)"LINES P2", 8*tile_size, 1, renderer,1);
-	// Etats kyb
-	// const Uint8 *state = SDL_GetKeyboardState(NULL);
+	Score score_p2((char *)"SCORE P2", 0, 40, renderer, 1);
+	Level level_p2((char *)"LEVEL P2", 4 * tile_size, 1, renderer, 1);
+	Lines lines_p2((char *)"LINES P2", 8 * tile_size, 1, renderer, 1);
 
 	lis_sockfd = setup_listener(5555);
 	cli_sockfd = (int *)malloc(2 * sizeof(int));
@@ -141,9 +135,7 @@ void Multi::play(SDL_Renderer *renderer, bool running, bool end_b,
 
 	while (running && !end_b) {
 		SDL_Event event;
-		while (running &&
-			   SDL_PollEvent(&event))  // avoir attennte non bloquante
-		{
+		while (running && SDL_PollEvent(&event)) {
 			switch (event.type) {
 				case SDL_QUIT:
 					running = 0;
@@ -159,15 +151,13 @@ void Multi::play(SDL_Renderer *renderer, bool running, bool end_b,
 			}
 		}
 
-		if (time(nullptr) - timer > 0.5)  // gravity of current piece
-		{
+		if (time(nullptr) - timer > 0.5) {
 			board->gravity_piece(renderer, &correct_line);
 			humany.board->gravity_piece(renderer, &humany.correct_line);
 			time(&timer);
 		}
 		lastFrame = SDL_GetTicks();
-		if (lastFrame - lastTime >= 70)	 // min speed to move pieces
-		{
+		if (lastFrame - lastTime >= 70) {
 			lastTime = lastFrame;
 			fps = frameCount;
 			frameCount = 0;
@@ -176,53 +166,37 @@ void Multi::play(SDL_Renderer *renderer, bool running, bool end_b,
 			b2 = input(renderer, &running, cli_sockfd[0], humany);
 		}
 
-		render(renderer, frameCount, lastFrame);  // display piece and board
-
+		render(renderer, frameCount, lastFrame);
 		if (b2 && bai2) {
-			render(renderer, frameCount, lastFrame);  // display piece and board
-			// board -> draw_board(renderer, WIDTH*2*tile_size);
+			render(renderer, frameCount, lastFrame);
+
 			humany.board->draw_board(renderer, 0);
 			humany.board->getcurPiece().draw_piece(renderer);
 			board->draw_board(renderer, WIDTH * 2 * tile_size);
 			board->getcurPiece().draw_piece(renderer, WIDTH * 2);
-            score.render_stat(&humany.correct_line);
+			score.render_stat(&humany.correct_line);
 			lines.render_stat(&humany.correct_line);
-			level.render_stat(&humany.correct_line, &humany.speed, &humany.level_);
-            score_p2.render_stat(&correct_line);
+			level.render_stat(&humany.correct_line, &humany.speed,
+							  &humany.level_);
+			score_p2.render_stat(&correct_line);
 			lines_p2.render_stat(&correct_line);
-			level_p2.render_stat(&correct_line, &speed, &level_);			
+			level_p2.render_stat(&correct_line, &speed, &level_);
 			SDL_RenderPresent(renderer);
 
 		} else {
-			SDL_Rect rec;
 			if (!b2) {
-				rec.w = WIDTH * tile_size;
-				rec.h = HEIGHT * tile_size;
-				rec.x = 0;
-				rec.y = 0;
-				SDL_RenderCopy(renderer, gameover, NULL, &rec);
-				rec.w = WIDTH * tile_size;
-				rec.h = HEIGHT * tile_size;
-				rec.x = 2 * WIDTH * tile_size;
-				rec.y = 0;
-				SDL_RenderCopy(renderer, win, NULL, &rec);
+				create_finalimage(0, gameover, renderer);
+				create_finalimage(2, win, renderer);
 			} else {
-				rec.w = WIDTH * tile_size;
-				rec.h = HEIGHT * tile_size;
-				rec.x = 0;
-				rec.y = 0;
-				SDL_RenderCopy(renderer, win, NULL, &rec);
-				rec.w = WIDTH * tile_size;
-				rec.h = HEIGHT * tile_size;
-				rec.x = 2 * WIDTH * tile_size;
-				rec.y = 0;
-				SDL_RenderCopy(renderer, gameover, NULL, &rec);
+				create_finalimage(0, win, renderer);
+				create_finalimage(2, gameover, renderer);
 			}
 
-            score.render_stat(&humany.correct_line);
+			score.render_stat(&humany.correct_line);
 			lines.render_stat(&humany.correct_line);
-			level.render_stat(&humany.correct_line, &humany.speed, &humany.level_);
-            score_p2.render_stat(&correct_line);
+			level.render_stat(&humany.correct_line, &humany.speed,
+							  &humany.level_);
+			score_p2.render_stat(&correct_line);
 			lines_p2.render_stat(&correct_line);
 			level_p2.render_stat(&correct_line, &speed, &level_);
 			SDL_RenderPresent(renderer);

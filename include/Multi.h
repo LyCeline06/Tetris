@@ -38,7 +38,7 @@ class Multi : protected Player {
 	Multi();
 
 	bool input(SDL_Renderer* renderer, bool* running, int player,
-				Player humany);
+			   Player humany);
 
 	void render(SDL_Renderer* renderer, int frameCount, int lastFrame);
 

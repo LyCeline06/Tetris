@@ -34,7 +34,6 @@ using namespace std;
 #define WIN "utils/win.jpg"
 #define CLIENT_IM "utils/client.png"
 
-
 // Audio structure to play song
 struct Sound {
 	const char* name;
@@ -46,9 +45,6 @@ struct Sound {
 };
 
 enum { MODE_SOLO, MODE_IA, MODE_MULTI, MODE_CLIENT };
-
-
-
 
 class Game {
    public:
@@ -63,7 +59,8 @@ class Game {
 	/* @brief Game destructor */
 	~Game();
 
-void create_text(const char* text, float w, float h, float x, float y, int tick_);
+	void create_text(const char* text, float w, float h, float x, float y,
+					 int tick_);
 
 	void start();
 	void start_solo();

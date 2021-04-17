@@ -18,6 +18,4 @@ Shape miror(Shape s) {
 	return s2;
 }
 
-Shape rotate(Shape s) {
-	return miror(transpose(s));
-}
+Shape rotate(Shape s) { return miror(transpose(s)); }

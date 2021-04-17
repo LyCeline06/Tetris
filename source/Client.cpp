@@ -5,7 +5,7 @@ Client::Client() : Player() {}
 void Client::error(const char *msg) {
 	perror(msg);
 	printf(
-		"Either the server shut down or the other player disconnected.\nGame "
+		"Player disconnected or server shutdown.\nGame "
 		"over.\n");
 
 	exit(0);
@@ -13,7 +13,7 @@ void Client::error(const char *msg) {
 
 void Client::write_server_msg(int cli_sockfd, int msg) {
 	int n = write(cli_sockfd, &msg, sizeof(int));
-	if (n < 0) error("ERROR writing msg to server socket");
+	if (n < 0) error("Writing msg to server socket failed\n");
 }
 
 int Client::connect_to_server(const char *hostname, int portno) {
@@ -22,12 +22,12 @@ int Client::connect_to_server(const char *hostname, int portno) {
 
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (sockfd < 0) error("ERROR opening socket for server.");
+	if (sockfd < 0) error("Opening socket for server failed.");
 
 	server = gethostbyname(hostname);
 
 	if (server == NULL) {
-		fprintf(stderr, "ERROR, no such host\n");
+		fprintf(stderr, "No host\n");
 		exit(0);
 	}
 
@@ -38,9 +38,9 @@ int Client::connect_to_server(const char *hostname, int portno) {
 	serv_addr.sin_port = htons(portno);
 
 	if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-		error("ERROR connecting to server");
+		error("Connecting to server failed");
 
-	printf("[DEBUG] Connected to server.\n");
+	printf("Connected to server.\n");
 	return sockfd;
 }
 
@@ -118,7 +118,7 @@ void Client::play(SDL_Renderer *renderer, bool running, bool end_b,
 
 				break;
 			default:
-				printf("The key wasn't pressed!\n");
+				printf("Please press 1 or 2 !\n");
 				break;
 		}
 	}

@@ -1,11 +1,9 @@
 #include "../include/Game.h"
 
+Uint8* audio_position;
+Uint32 audio_length;
 
-Uint8 *audio_position;  
-Uint32 audio_length;  
-
-
-void audio_cb(void *userdata, Uint8 *stream, int len) {
+void audio_cb(void* userdata, Uint8* stream, int len) {
 	len = ((unsigned int)len > audio_length ? audio_length : len);
 	SDL_memcpy(stream, audio_position, len);
 	SDL_MixAudio(stream, audio_position, len, SDL_MIX_MAXVOLUME);
@@ -43,8 +41,7 @@ void Game::entrymusic() {
 	SDL_PauseAudio(0);
 }
 
-
-SDL_Texture* create_img(const char* file, SDL_Renderer* renderer){
+SDL_Texture* create_img(const char* file, SDL_Renderer* renderer) {
 	SDL_Surface* surface;
 	SDL_Texture* background;
 	surface = IMG_Load(file);
@@ -54,7 +51,7 @@ SDL_Texture* create_img(const char* file, SDL_Renderer* renderer){
 	if (!surface)
 		cout << "Could not load image on background \n"
 			 << SDL_GetError() << endl;
-	return background;		 
+	return background;
 }
 
 Game::Game() {
@@ -90,8 +87,6 @@ Game::Game() {
 	client_img = create_img(CLIENT_IM, renderer);
 }
 
-
-
 Game::~Game() {
 	SDL_CloseAudio();
 	if (s.wav_buffer != nullptr) SDL_FreeWAV(s.wav_buffer);
@@ -107,8 +102,6 @@ Game::~Game() {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
-
-
 
 void Game::menu() {
 	bool start = false;
@@ -158,14 +151,14 @@ void Game::menu() {
 		SDL_RenderClear(renderer);
 		SDL_RenderCopy(renderer, background, NULL, NULL);
 
-		// CREATORS 
+		// CREATORS
 		create_text("TETRIS", 500, 150, 0.5, 0.1, 607);
 		create_text("PRESS 1 TO PLAY SOLO", 500, 55, 0.5, 0.4, 500);
-		create_text( "PRESS 2 TO PLAY VS AI", 500, 55, 0.5, 0.55, 300);
+		create_text("PRESS 2 TO PLAY VS AI", 500, 55, 0.5, 0.55, 300);
 		create_text("PRESS 3 FOR SERVER MODE", 550, 55, 0.5, 0.7, 350);
 		create_text("PRESS 4 FOR CLIENT MODE", 550, 55, 0.5, 0.85, 400);
 		create_text("BY CELINE & YASSINE", 250, 25, 0.5, 0.95, 310);
-		
+
 		SDL_RenderPresent(renderer);
 
 		// AUDIO
@@ -178,21 +171,21 @@ void Game::menu() {
 	}
 };
 
-void Game::create_text(const char* text, float w_, float h_, float x_, float y_, int tick_){
-		SDL_Color White = {255, 255, 255, 255};
-		SDL_Rect Message_rect;
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		surface = TTF_RenderText_Solid(font, text, White);
-		texture = SDL_CreateTextureFromSurface(renderer, surface);
-		Message_rect.w = w_;
-		Message_rect.h = h_;
-		Message_rect.x = (w - Message_rect.w) * x_;
-		Message_rect.y = (h - Message_rect.h) * y_;
-		if (fmod(SDL_GetTicks(), tick_) > 50) {
-			SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
-		}
-		
+void Game::create_text(const char* text, float w_, float h_, float x_, float y_,
+					   int tick_) {
+	SDL_Color White = {255, 255, 255, 255};
+	SDL_Rect Message_rect;
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	surface = TTF_RenderText_Solid(font, text, White);
+	texture = SDL_CreateTextureFromSurface(renderer, surface);
+	Message_rect.w = w_;
+	Message_rect.h = h_;
+	Message_rect.x = (w - Message_rect.w) * x_;
+	Message_rect.y = (h - Message_rect.h) * y_;
+	if (fmod(SDL_GetTicks(), tick_) > 50) {
+		SDL_RenderCopy(renderer, texture, NULL, &Message_rect);
+	}
 }
 
 void Game::start_solo() {

@@ -15,25 +15,27 @@
 #include <thread>
 #include <vector>
 
-#include "Stat.h"
 #include "Board.h"
 #include "Piece.h"
 #include "Shape.h"
+#include "Stat.h"
 
 using namespace std;
 
 class Player {
-	protected :
-		Board *board;
-		pair<int,int> correct_line; //first : accumulator of second ; second : nb of correct lines not disappeared yet
-		int level_;
-		float speed;
-	public :
-		Player();
-		Board* get_board();
-		pair<int,int> get_correct_line();
+   protected:
+	Board* board;
+	pair<int, int> correct_line;  // first : accumulator of second ; second : nb
+								  // of correct lines not disappeared yet
+	int level_;
+	float speed;
 
+   public:
+	Player();
+	Board* get_board();
+	pair<int, int> get_correct_line();
+	void create_finalimage(int player, SDL_Texture* img,
+						   SDL_Renderer* renderer);
 };
-
 
 #endif
