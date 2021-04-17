@@ -27,6 +27,13 @@
 using namespace std;
 
 #define DELAY 25
+#define BACKGROUND "utils/tetris.jpg"
+#define MUSIC "utils/acapella.wav"
+#define FONT "utils/police_style.ttf"
+#define GAMEOVER "utils/gameover.bmp"
+#define WIN "utils/win.jpg"
+#define CLIENT_IM "utils/client.png"
+
 
 // Audio structure to play song
 struct Sound {
@@ -40,6 +47,9 @@ struct Sound {
 
 enum { MODE_SOLO, MODE_IA, MODE_MULTI, MODE_CLIENT };
 
+
+
+
 class Game {
    public:
 	/* @brief Game constructor
@@ -52,6 +62,8 @@ class Game {
 	void entrymusic();
 	/* @brief Game destructor */
 	~Game();
+
+void create_text(const char* text, float w, float h, float x, float y, int tick_);
 
 	void start();
 	void start_solo();
@@ -71,12 +83,11 @@ class Game {
 	SDL_Renderer* renderer;
 	int width;
 	int height;
+
 	SDL_Texture* gameover;
 	SDL_Texture* win;
 	SDL_Texture* client_img;
-	SDL_Surface* image;
-	SDL_Surface* image_win;
-	SDL_Surface* image_client;
+
 	int frameCount, timerFPS, lastFrame, fps;
 	bool running;
 	bool end_b = false;
